@@ -1,3 +1,10 @@
+<?php
+        session_name('tzLogin');
+        // Starting the session
+        session_start();
+ 
+       
+?>
 <!--
 To change this template, choose Tools | Templates
 and open the template in the editor.
@@ -7,12 +14,12 @@ and open the template in the editor.
 <html>
     <head>
         <meta charset="utf-8">
-        <title>中医药知识服务平台</title>
+        <title>您好， <?php echo $_SESSION['real_name'] ? $_SESSION['real_name'] : '访客'; ?>!</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
         <script src="./ckeditor/ckeditor.js"></script>
-	<link rel="stylesheet" href="ckeditor/samples/sample.css">
+        <link rel="stylesheet" href="ckeditor/samples/sample.css">
         <!-- Le styles -->
         <link href="css/bootstrap.css" rel="stylesheet">
         <style type="text/css">
@@ -37,7 +44,7 @@ and open the template in the editor.
         <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
         <link rel="shortcut icon" href="assets/ico/favicon.png">
 
-          <script type="text/javascript">
+        <script type="text/javascript">
             var _gaq = _gaq || [];
             _gaq.push(['_setAccount', 'UA-146052-10']);
             _gaq.push(['_trackPageview']);
@@ -54,6 +61,7 @@ and open the template in the editor.
     </head>
 
     <body>
+
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">

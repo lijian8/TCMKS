@@ -55,7 +55,14 @@ if (isset($_POST['submit'])) {
                 <div class="controls">
                     <input class="span12" type="text" id="title" name="title" placeholder="请输入综述的标题">
                 </div>
-            </div>               
+            </div>         
+            <div class="control-group">
+                <label class="control-label" for="title">创建人:</label>
+                <div class="controls">
+                    <input class="span12" type="text" id="title" name="title" value="<?php echo $_SESSION['real_name'] ? $_SESSION['real_name'] : ''; ?>">
+                    
+                </div>
+            </div>         
             <div class="control-group">
                 <label class="control-label" for="abstract">摘要:</label>
                 <div class="controls">
