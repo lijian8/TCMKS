@@ -20,9 +20,10 @@ include_once ("./header.php");
                     <tbody>
                         <tr class="info">
                             <td>#</td>
-                            <td width = "8%"><strong>创建者</strong></td>
-                            <td width = "8%"><strong>审核者</strong></td>
-                            <td width = "8%"><strong>发布者</strong></td>
+                            <td width = "6%"><strong>创建者</strong></td>
+                            <td width = "6%"><strong>作者</strong></td>                           
+                            <td width = "6%"><strong>评审</strong></td>
+                            <td width = "6%"><strong>发布者</strong></td>
                             <td width = "15%"><strong>题目</strong></td> 
                             <td width = "40%"><strong>摘要</strong></td>
                             <td width = "10%"><strong>创建时间</strong></td>
@@ -31,12 +32,23 @@ include_once ("./header.php");
                         <?php
 
                         function get_abstract($dbc, $article_id, $segment_id) {
-                           
+
                             $query = "SELECT content FROM segment where article_id=$article_id and id = $segment_id";
-                            
                             $result = mysqli_query($dbc, $query) or die('Error querying database3.');
                             $row = mysqli_fetch_array($result);
                             return $row['content'];
+                        }
+
+                        function getUsers($dbc, $article_id, $role) {
+                            $query = "SELECT * FROM `tcmks`.`authorship` as t1, `tcmks`.`users` as t2 where t1.author_id = t2.id and article_id = $article_id and role = '$role'";
+                            
+                            $result = mysqli_query($dbc, $query) or die('Error querying database3.');
+                            $s = "";
+                            while ($row = mysqli_fetch_array($result)) {
+                                $s .= $row['real_name'] . "&nbsp;";
+                            }
+                            echo $query.$s;
+                            return $s;
                         }
 
                         $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
@@ -55,9 +67,10 @@ include_once ("./header.php");
                             }
                             $color = !$color;
                             echo '<td>' . $row_num++ . '</td>';
-                            echo '<td>欧蔚妮</td>';
-                            echo '<td>段英</td>';
-                            echo '<td>邢卉春</td>';
+                            echo '<td>' . getUsers($dbc, $row[id], 'creator') . '</td>';
+                            echo '<td>' . getUsers($dbc, $row[id], 'author') . '</td>';
+                            echo '<td>' . getUsers($dbc, $row[id], 'reviewer') . '</td>';
+                            echo '<td>' . getUsers($dbc, $row[id], 'publisher') . '</td>';
 
                             // $first_name = $row['first_name'];
                             // $last_name = $row['last_name'];
@@ -66,11 +79,11 @@ include_once ("./header.php");
 
                             echo '<td>' . $row['title'] . '</td>';
                             //echo '<td>' . $row['abstract'] . '</td>';
-                            echo '<td>' . get_abstract($dbc, $row['id'], $row['first']). '</td>';
+                            echo '<td>' . get_abstract($dbc, $row['id'], $row['first']) . '</td>';
                             echo '<td>' . $row['create_time'] . '</td>';
-                            
-                            
-                            
+
+
+
 
                             echo '<td><a class="btn" href="article.php?id=' . $row['id'] . '"><i class="icon-edit"></i></a>';
                             echo '<a class="btn" href="create_article.html"><i class="icon-trash"></i></a></td></tr>';

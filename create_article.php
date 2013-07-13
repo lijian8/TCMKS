@@ -1,5 +1,15 @@
 <?php
 
+function renderUserList() {
+    $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
+    $query = "select * from users";
+    $result = mysqli_query($dbc, $query) or die('Error querying database3.');
+
+    while ($row = mysqli_fetch_array($result)) {
+        echo '<option value ="' . $row['id'] . '">' . $row['real_name'] . '</option>';
+    }
+}
+
 function get_id($dbc) {
     $query = "SELECT MAX(id) as id FROM article";
     $result = mysqli_query($dbc, $query) or die('Error querying database3.');
@@ -23,6 +33,9 @@ if (isset($_POST['submit'])) {
     $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
     $title = $_POST['title'];
     $abstract = $_POST['abstract'];
+
+
+
     $id = get_id($dbc);
 
     $query = "INSERT INTO article (id, title) " .
@@ -34,11 +47,51 @@ if (isset($_POST['submit'])) {
     $query = "UPDATE article SET first = '$segment_id' where id = '$id'";
     mysqli_query($dbc, $query) or die('Error querying database5.');
 
+    $authors = $_POST['authors'];
+    if (empty($authors)) {
+        echo("您未指定作者！");
+    } else {
+        $N = count($authors);
+        for ($i = 0; $i < $N; $i++) {
+            $query = "INSERT INTO authorship (article_id, author_id, role) " .
+                    "VALUES ('$id','$authors[$i]', 'author')";
+            //echo $query;
+            mysqli_query($dbc, $query) or die('Error querying database:');
+        }
+    }
+
+    $reviewers = $_POST['reviewers'];
+    if (empty($reviewers)) {
+        echo("您未指定评审！");
+    } else {
+        $N = count($reviewers);
+        for ($i = 0; $i < $N; $i++) {
+            $query = "INSERT INTO authorship (article_id, author_id, role) " .
+                    "VALUES ('$id','$reviewers[$i]', 'reviewer')";
+            //echo $query;
+            mysqli_query($dbc, $query) or die('Error querying database:');
+        }
+    }
+
+    
+    $publishers = $_POST['publishers'];
+    if (empty($publishers)) {
+        echo("您未指定评审！");
+    } else {
+        $N = count($publishers);
+        for ($i = 0; $i < $N; $i++) {
+            $query = "INSERT INTO authorship (article_id, author_id, role) " .
+                    "VALUES ('$id','$publishers[$i]', 'publisher')";
+            //echo $query;
+            mysqli_query($dbc, $query) or die('Error querying database:');
+        }
+    }
+
     echo '<div class="alert alert-success">';
     echo '<button type="button" class="close" data-dismiss="alert">&times;</button>';
     echo '<h4>综述文献' . $title . '创建成功!</h4>';
     echo '<p>' . $abstract . '</p>';
-    echo '<a href="article.php?id='. $id .'">查看并编辑</a>';
+    echo '<a href="article.php?id=' . $id . '">查看并编辑</a>';
     echo '</div>';
 }
 ?>
@@ -53,29 +106,55 @@ if (isset($_POST['submit'])) {
             <div class="control-group">
                 <label class="control-label" for="title">标题:</label>
                 <div class="controls">
-                    <input class="span12" type="text" id="title" name="title" placeholder="请输入综述的标题">
+                    <input class="input-block-level" type="text" id="title" name="title" placeholder="请输入综述的标题">
                 </div>
             </div>         
             <div class="control-group">
-                <label class="control-label" for="title">创建人:</label>
+                <label class="control-label" for="creator">创建者:</label>
                 <div class="controls">
-                    <input class="span12" type="text" id="title" name="title" value="<?php echo $_SESSION['real_name'] ? $_SESSION['real_name'] : ''; ?>">
-                    
+                    <input class="input-block-level" type="text" id="creator" name="creator" value="<?php echo $_SESSION['real_name'] ? $_SESSION['real_name'] : ''; ?>">
                 </div>
-            </div>         
+            </div>
+            <div class="control-group">
+                <!-- Select Multiple -->
+                <label class="control-label" for="authors[]">作者:</label>
+                <div class="controls">
+                    <select id="authors[]" name ="authors[]" class="input-block-level" multiple="multiple">
+                        <?php renderUserList(); ?>                        
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <!-- Select Multiple -->
+                <label class="control-label" for="reviewers[]">评审:</label>
+                <div class="controls">
+                    <select id="reviewers[]" name ="reviewers[]" class="input-block-level" multiple="multiple">
+                        <?php renderUserList(); ?>                        
+                    </select>
+                </div>
+            </div>
+                  <div class="control-group">
+                <!-- Select Multiple -->
+                <label class="control-label" for="publishers[]">发布者:</label>
+                <div class="controls">
+                    <select id="publishers[]" name ="publishers[]" class="input-block-level" multiple="multiple">
+                        <?php renderUserList(); ?>                        
+                    </select>
+                </div>
+            </div>
             <div class="control-group">
                 <label class="control-label" for="abstract">摘要:</label>
                 <div class="controls">
-                    <textarea class="span12" id="abstract" name="abstract" placeholder="请输入摘要" rows="10"></textarea>                    
+                    <textarea class="input-block-level" id="abstract" name="abstract" placeholder="请输入摘要" rows="10"></textarea>                    
                 </div>
             </div>
-             <div class="control-group">
+            <div class="control-group">
                 <div class="controls">
                     <input class="btn btn-primary" type="submit" name="submit" value="创建" />    
                     <a class="btn btn-success" href="index.php">返回首页</a>
                 </div>
             </div>
-            
+
         </form>
     </div> 
 </div> 

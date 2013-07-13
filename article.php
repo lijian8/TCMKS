@@ -16,6 +16,26 @@ function delete_segment($dbc, $id) {
     $result = mysqli_query($dbc, $query) or die('Error querying database1.');
 }
 
+function getUsers($dbc, $article_id, $role) {
+    $query = "SELECT * FROM `tcmks`.`authorship` as t1, `tcmks`.`users` as t2 where t1.author_id = t2.id and article_id = $article_id and role = '$role'";
+
+    $result = mysqli_query($dbc, $query) or die('Error querying database3.');
+    $s = "";
+
+    $first = true;
+    while ($row = mysqli_fetch_array($result)) {
+        if ($first) {
+            $first = false;
+        } else {
+            $s .= ',&nbsp;&nbsp;';
+        }
+        $s .= $row['real_name'];
+    }
+
+    //echo $query . $s;
+    return $s;
+}
+
 include_once ("./header.php");
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -34,15 +54,46 @@ if (isset($_GET['id'])) {
     $row1 = mysqli_fetch_array($r1);
     $title = $row1['title'];
     $abstract = $row1['abstract'];
-
-    // $last_name = $row['last_name'];
-    // $msg = "Dear $first_name $last_name,\n$text";
-    echo '<div class="hero-unit">';
-    echo '<h1><font face="黑体">' . $title . '</font></h1>';
-    echo '<font size="2">创建者：欧蔚妮（副主任医师） &nbsp;&nbsp; 审核者：段英 （主治医师） &nbsp;&nbsp; 发布者：邢卉春 （主任医师）</font><br>';
-    echo '<font size="2">创建时间：06/07/2013 &nbsp; 发布时间：06/07/2013</font>';
-    echo '</div>';
     ?>
+    
+    <p>
+        <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-th-list icon-white"></i>&nbsp;编辑元信息</a>
+        <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-edit icon-white"></i>&nbsp;编辑全文</a>
+        <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-trash icon-white"></i>&nbsp;删除本文</a> 
+        <a class="btn btn-warning" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-download-alt icon-white"></i>&nbsp;下载全文</a>            
+        <a class="btn btn-warning" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-home icon-white"></i>&nbsp;返回主页</a>            
+
+
+    </p>
+    <div  class="row">
+        <p></p>
+        <div class="span4"><h1><font face="微软雅黑" ><?php echo $title; ?> </font></h1> </div>
+        <div class="span5" align ="left"> 
+        </div>
+    </div>    
+
+    <div class="container" style="background-color:#f1f1f1;"   >
+        <font size ="2">
+        <p></p>
+        <p>&nbsp;&nbsp;<strong>创建者:&nbsp;</strong>
+            <?php echo getUsers($dbc, $id, 'creator'); ?>;&nbsp;&nbsp;
+            <strong>作者:&nbsp;</strong>
+            <?php echo getUsers($dbc, $id, 'author'); ?>;&nbsp;&nbsp;     
+            <strong>评审:&nbsp;</strong>
+            <?php echo getUsers($dbc, $id, 'reviewer'); ?>;&nbsp;&nbsp;     
+            <strong>发布者:&nbsp;</strong>
+            <?php echo getUsers($dbc, $id, 'publisher'); ?>.     
+        <p>&nbsp;&nbsp;<strong>创建时间：</strong>06/07/2013 ;&nbsp;&nbsp; <strong>发布时间：</strong>06/07/2013</font></p>            
+
+        </font>
+    </div>
+    <p></p>
+
+
+
+
+
+
 
     <div class="container">
         <div class="row">
@@ -66,11 +117,11 @@ if (isset($_GET['id'])) {
                         $c_rank = $row2['rank'];
 
                         if ($c_rank == 1) {
-                            echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="黑体">' . $c_title . '</font></a></li>';
+                            echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
 
                             //'<h2>' . $c_title . '</h2>';
                         } else {
-                            echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="黑体">-' . $c_title . '</font></a></li>';
+                            echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
 
                             //echo '<h3>' . $c_title . '</h3>';
                         }
@@ -109,21 +160,21 @@ if (isset($_GET['id'])) {
                     $c_rank = $row2['rank'];
 
                     if ($c_rank == 1) {
-                        echo '<div class="page-header"><h2><font face="黑体">' . $c_title . '</font></h2></div>';
+                        echo '<div class="page-header"><h2><font face="微软雅黑">' . $c_title . '</font></h2></div>';
                     } else {
-                        echo '<div class="page-header"><h3><font face="黑体">' . $c_title . '</font></h3></div>';
+                        echo '<div class="page-header"><h3><font face="微软雅黑">' . $c_title . '</font></h3></div>';
                     }
 
                     echo '<p>' . $c_content . '</p>';
-                    echo '<a href="editor.php?act=edit&article_id=' . $id . '&id=' . $c_id . '">编辑本段</a>';
+                    echo '<a href="editor.php?act=edit&article_id=' . $id . '&id=' . $c_id . '"><i class="icon-edit"></i></a>';
                     echo '&nbsp;&nbsp';
-                    echo '<a href="editor.php?act=insert&article_id=' . $id . '&id=' . $c_id . '">插入段落</a>';
+                    echo '<a href="editor.php?act=insert&article_id=' . $id . '&id=' . $c_id . '"><i class="icon-plus"></i></a>';
                     echo '&nbsp;&nbsp';
 
                     if ($is_first_segment) {
                         $is_first_segment = false;
                     } else {
-                        echo '<a href="article.php?id=' . $id . '&deleted_segment_id=' . $c_id . '">删除段落</a>';
+                        echo '<a href="article.php?id=' . $id . '&deleted_segment_id=' . $c_id . '"><i class="icon-trash"></i></a>';
                     }
 
                     echo '<HR color=#987cb9 size=1>';
