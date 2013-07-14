@@ -1,6 +1,6 @@
 <footer class="footer">
     <div class="container">
-        <p><a href="yutong" target="_blank">于彤</a>设计</p>
+        <p><a href="yutong" target="_blank">于彤</a>, <a href="yutong" target="_blank">陈矫彦</a>,<a href="yutong" target="_blank">刘娜</a>设计</p>
         <p>© 中国中医科学院中医药信息研究所</p>
         <ul class="footer-links">
             <li><a href="http://www.cintcm.ac.cn/opencms/opencms/index.html">CINTCM</a></li>

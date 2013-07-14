@@ -47,7 +47,7 @@ include_once ("./header.php");
                             while ($row = mysqli_fetch_array($result)) {
                                 $s .= $row['real_name'] . "&nbsp;";
                             }
-                            echo $query.$s;
+                            //echo $query.$s;
                             return $s;
                         }
 

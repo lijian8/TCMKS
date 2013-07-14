@@ -1,6 +1,8 @@
 <?php
 include_once ("./header.php");
+?>
 
+<?php
 echo '<p></p>';
 require_once('appvars.php');
 require_once('connectvars.php');

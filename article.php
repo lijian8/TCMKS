@@ -1,4 +1,6 @@
 <?php
+require_once('appvars.php');
+require_once('connectvars.php');
 
 function delete_segment($dbc, $id) {
 
@@ -55,7 +57,7 @@ if (isset($_GET['id'])) {
     $title = $row1['title'];
     $abstract = $row1['abstract'];
     ?>
-    
+
     <p>
         <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-th-list icon-white"></i>&nbsp;编辑元信息</a>
         <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-edit icon-white"></i>&nbsp;编辑全文</a>
@@ -166,9 +168,28 @@ if (isset($_GET['id'])) {
                     }
 
                     echo '<p>' . $c_content . '</p>';
+
+                    $q3 = "SELECT * FROM images WHERE segment_id = '$segment_id'";
+                    $r3 = mysqli_query($dbc, $q3) or die('Error querying database2.');
+                    while ($row3 = mysqli_fetch_array($r3)) {
+                        echo '<div class="row-fluid">';
+                        echo '<ul class="thumbnails">';
+                        echo '<li class="span12">';
+                        echo '<div class="thumbnail">';
+                        echo '<img src="' . IMG_UPLOADPATH . $row3['file'] . '"  alt="" />';
+                        echo '<div class="caption">';
+                        echo '<h3>' . $row3[name] . '</h3>';
+                        echo '<p>' . $row3[description] . '</p>';
+                        //echo '<p><a href="#" class="btn btn-primary">查看</a></p>';
+                        echo '</div></div></li></ul></div>';
+                    }
+
+
                     echo '<a href="editor.php?act=edit&article_id=' . $id . '&id=' . $c_id . '"><i class="icon-edit"></i></a>';
                     echo '&nbsp;&nbsp';
                     echo '<a href="editor.php?act=insert&article_id=' . $id . '&id=' . $c_id . '"><i class="icon-plus"></i></a>';
+                    echo '&nbsp;&nbsp';
+                    echo '<a href="upload_image.php?segment_id=' . $c_id . '"><i class="icon-picture"></i></a>';
                     echo '&nbsp;&nbsp';
 
                     if ($is_first_segment) {
@@ -176,6 +197,8 @@ if (isset($_GET['id'])) {
                     } else {
                         echo '<a href="article.php?id=' . $id . '&deleted_segment_id=' . $c_id . '"><i class="icon-trash"></i></a>';
                     }
+
+
 
                     echo '<HR color=#987cb9 size=1>';
 
