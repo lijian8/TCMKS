@@ -137,7 +137,7 @@ include_once ("./header.php");
                             echo '<td width = "10%">' . $row['create_time'] . '</td>';
                             $file_name = iconv('utf-8', 'gb2312', $row['file']);
                             echo '<td width = "15%">';
-                            echo '<a class="btn" href="create_article.html"><i class="icon-edit"></i></a>';
+                            echo '<a class="btn" href="upload_file.php"><i class="icon-edit"></i></a>';
 
                             if (is_file(GW_UPLOADPATH . $file_name)) {
                                 echo '<a class="btn" href="' . GW_UPLOADPATH . $row['file'] . '"><i class="icon-download-alt"></i></a>';

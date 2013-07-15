@@ -57,39 +57,9 @@ if (isset($_GET['id'])) {
     $title = $row1['title'];
     $abstract = $row1['abstract'];
     ?>
-
-    <p>
-        <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-th-list icon-white"></i>&nbsp;编辑元信息</a>
-        <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-edit icon-white"></i>&nbsp;编辑全文</a>
-        <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-trash icon-white"></i>&nbsp;删除本文</a> 
-        <a class="btn btn-warning" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-download-alt icon-white"></i>&nbsp;下载全文</a>            
-        <a class="btn btn-warning" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-home icon-white"></i>&nbsp;返回主页</a>            
+   
 
 
-    </p>
-    <div  class="row">
-        <p></p>
-        <div class="span4"><h1><font face="微软雅黑" ><?php echo $title; ?> </font></h1> </div>
-        <div class="span5" align ="left"> 
-        </div>
-    </div>    
-
-    <div class="container" style="background-color:#f1f1f1;"   >
-        <font size ="2">
-        <p></p>
-        <p>&nbsp;&nbsp;<strong>创建者:&nbsp;</strong>
-            <?php echo getUsers($dbc, $id, 'creator'); ?>;&nbsp;&nbsp;
-            <strong>作者:&nbsp;</strong>
-            <?php echo getUsers($dbc, $id, 'author'); ?>;&nbsp;&nbsp;     
-            <strong>评审:&nbsp;</strong>
-            <?php echo getUsers($dbc, $id, 'reviewer'); ?>;&nbsp;&nbsp;     
-            <strong>发布者:&nbsp;</strong>
-            <?php echo getUsers($dbc, $id, 'publisher'); ?>.     
-        <p>&nbsp;&nbsp;<strong>创建时间：</strong>06/07/2013 ;&nbsp;&nbsp; <strong>发布时间：</strong>06/07/2013</font></p>            
-
-        </font>
-    </div>
-    <p></p>
 
 
 
@@ -99,7 +69,7 @@ if (isset($_GET['id'])) {
 
     <div class="container">
         <div class="row">
-            <div class="span3 bs-docs-sidebar">
+            <div class="span3  bs-docs-sidebar">
                 <ul class="nav nav-list bs-docs-sidenav">
 
                     <?php
@@ -137,6 +107,29 @@ if (isset($_GET['id'])) {
             </div>
 
             <div class="span9">
+                <div class="hero-unit">
+            <h1><font face="微软雅黑" ><?php echo $title; ?> </font></h1>
+            <font size ="2">
+            <p></p>
+            <p>&nbsp;&nbsp;<strong>创建者:&nbsp;</strong>
+                <?php echo getUsers($dbc, $id, 'creator'); ?>;&nbsp;&nbsp;
+                <strong>作者:&nbsp;</strong>
+                <?php echo getUsers($dbc, $id, 'author'); ?>;&nbsp;&nbsp;     
+                <strong>评审:&nbsp;</strong>
+                <?php echo getUsers($dbc, $id, 'reviewer'); ?>;&nbsp;&nbsp;     
+                <strong>发布者:&nbsp;</strong>
+                <?php echo getUsers($dbc, $id, 'publisher'); ?>.     
+            <p>&nbsp;&nbsp;<strong>创建时间：</strong>06/07/2013 ;&nbsp;&nbsp; <strong>发布时间：</strong>06/07/2013</font></p>            
+
+            </font>
+            <p>
+                <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-th-list icon-white"></i>&nbsp;编辑元信息</a>
+                <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-edit icon-white"></i>&nbsp;编辑全文</a>
+                <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-trash icon-white"></i>&nbsp;删除本文</a> 
+                <a class="btn btn-warning" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-download-alt icon-white"></i>&nbsp;下载全文</a>            
+                <a class="btn btn-warning" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-home icon-white"></i>&nbsp;返回主页</a>            
+            </p>
+        </div>
 
 
 
@@ -144,7 +137,7 @@ if (isset($_GET['id'])) {
                 <?php
                 //to do: authors
                 //echo '<h2>摘要</h2>' . $abstract;
-                echo '<HR color=#987cb9 size=1>';
+                //echo '<HR color=#987cb9 size=1>';
 
                 $segment_id = $row1['first'];
                 $is_first_segment = true;
@@ -163,8 +156,11 @@ if (isset($_GET['id'])) {
 
                     if ($c_rank == 1) {
                         echo '<div class="page-header"><h2><font face="微软雅黑">' . $c_title . '</font></h2></div>';
+                        //echo '<h2><font face="微软雅黑">' . $c_title . '</font></h2>';
+                        
                     } else {
                         echo '<div class="page-header"><h3><font face="微软雅黑">' . $c_title . '</font></h3></div>';
+                        //echo '<h3><font face="微软雅黑">' . $c_title . '</font></h3>';
                     }
 
                     echo '<p>' . $c_content . '</p>';
@@ -210,6 +206,7 @@ if (isset($_GET['id'])) {
             }
             ?>
         </div>
+        
     </div>
     <?php
     include_once ("./foot.php");
