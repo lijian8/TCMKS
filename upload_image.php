@@ -30,6 +30,7 @@ include_once ("./header.php");
     }
     if (isset($_GET['segment_id'])){
         $segment_id = $_GET['segment_id'];
+        $article_id = $_GET['article_id'];
     }
     if (isset($_POST['submit'])) {
        
@@ -39,6 +40,8 @@ include_once ("./header.php");
         $score = $_POST['score'];
         $discription = $_POST['discription'];
         $segment_id = $_POST['segment_id'];
+        $article_id = $_POST['article_id'];
+        
         if (isset($_POST['images'])){
             $images = $_POST['images'];
         }else{
@@ -88,7 +91,7 @@ include_once ("./header.php");
 
         if (!empty($images)) {
             echo '<div class = "span6">';
-            echo '<legend>已上传如下图片！您可继续上传图片，或<a>返回</a>.</legend>';
+            echo "<legend>已上传如下图片！您可继续上传图片，或<a href = \"article.php?id=$article_id#s$segment_id\">返回</a>.</legend>";
 
             $left = true;
             foreach ($images as $cur_image) {
@@ -114,6 +117,7 @@ include_once ("./header.php");
         <form enctype="multipart/form-data" class="form-horizontal" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
             <legend>请上传图片：</legend>
             <input type="hidden" name="segment_id" value="<?php echo $segment_id; ?>" />
+            <input type="hidden" name="article_id" value="<?php echo $article_id; ?>" />
             
             
             

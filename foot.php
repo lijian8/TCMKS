@@ -1,5 +1,5 @@
 <footer class="footer">
-    <div class="container">
+    
         <p><a href="yutong" target="_blank">于彤</a>, <a href="yutong" target="_blank">陈矫彦</a>,<a href="yutong" target="_blank">刘娜</a>设计</p>
         <p>© 中国中医科学院中医药信息研究所</p>
         <ul class="footer-links">
@@ -9,7 +9,7 @@
             <li class="muted">&middot;</li>
             <li><a href="https://github.com/twitter/bootstrap/blob/master/CHANGELOG.md">关于我们</a></li>
         </ul>
-    </div>
+    
 </footer>
 <script src="./js/jquery.min.js"></script>
 <script src="./js/bootstrap.min.js"></script>

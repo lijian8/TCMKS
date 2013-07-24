@@ -1,19 +1,26 @@
+
 <?php
 
-include_once ("./header.php");
+//include_once ("./header.php");
 ?>
+
 <script>
-    function clk(str) {
+        function fileSelected(str) {
         //alert(str);
-        document.getElementById('b').value = str;
+        document.getElementById('fileSearchInput').value = str;
+        //document.getElementById('fileSearchURI').value = uri;
+        
+        renderFileSearchPanel(str);
 
     }
-    function showResult(str)
+    function renderFileSearchPanel(str)
     {
+        //document.getElementById('fileSearchURI').value = "#" + str + "#";
+       
         if (str.length == 0)
         {
-            document.getElementById("livesearch").innerHTML = "";
-            document.getElementById("livesearch").style.border = "0px";
+            document.getElementById("fileSearchPanel").innerHTML = "";
+            document.getElementById("fileSearchPanel").style.border = "0px";
             return;
         }
         if (window.XMLHttpRequest)
@@ -28,8 +35,8 @@ include_once ("./header.php");
         {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200)
             {
-                document.getElementById("livesearch").innerHTML = xmlhttp.responseText;
-                document.getElementById("livesearch").style.border = "1px solid #A5ACB2";
+                document.getElementById("fileSearchPanel").innerHTML = xmlhttp.responseText;
+                document.getElementById("fileSearchPanel").style.border = "1px solid #A5ACB2";
             }
         }
         xmlhttp.open("GET", "file_service.php?q=" + str, true);
@@ -38,13 +45,17 @@ include_once ("./header.php");
 </script>
 
 
-<form>
-    <input id="b" type="text" size="30" onkeyup="showResult(this.value)">
-    <input id="A" type="button" value="A" onclick="alert('A');" />
+<div class="input-append" class="span8">
+    <input id="fileSearchInput" type="text" size="15" onkeyup="renderFileSearchPanel(this.value)">
+    <input id="fileSearchURI" type="hidden">
+   
+    <input id="select" class="btn btn-success" type="button" value="插入链接" onclick="InsertText();" />
     
-    <div id="livesearch"></div>
-</form>
+</div>
+<div class="container" id="fileSearchPanel"></div>
+    
+
 <?php
 
-include_once ("./foot.php");
+//include_once ("./foot.php");
 ?>

@@ -1,9 +1,7 @@
 <?php
-        session_name('tzLogin');
-        // Starting the session
-        session_start();
- 
-       
+session_name('tzLogin');
+// Starting the session
+session_start();
 ?>
 <!--
 To change this template, choose Tools | Templates
@@ -60,7 +58,7 @@ and open the template in the editor.
 
     </head>
 
-    <body>
+    <body >
 
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
@@ -73,25 +71,50 @@ and open the template in the editor.
 
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <li><a class="brand" href="#">中医药知识服务平台</a></li>
-                            <li><a href="#about">查看</a></li>
-                            <li class="active"><a href="#contact">编审</a></li>
+                            <li><a class="brand" href="main.php">中医药知识服务平台</a></li>
+                            <li  class="active"><a href="main.php">主页</a></li>
+                          
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">管理 <b class="caret"></b></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">知识<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">用户管理</a></li>
-                                    <li><a href="#">主题分类</a></li>                                    
+                                    <li><a href="navigator.php">检索</a></li>
+                                    <li><a href="index.php">编审</a></li>                                    
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">专家<b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">浏览</a></li>
+                                    <li><a href="#">个人信息</a></li>                                    
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">管理<b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="article_manager.php">文献管理</a></li>
+                                    <li><a href="image_manager.php">图片管理</a></li>                                    
                                 </ul>
                             </li>
                             <li><a href="#contact">帮助</a></li>
                             <li><a href="#contact">关于我们</a></li>
 
                         </ul>
-                        <form class="navbar-form pull-right">
-                            <input class="span2" type="text" placeholder="用户名">
-                            <input class="span2" type="password" placeholder="密码">
-                            <button type="submit" class="btn">登录</button>
-                        </form>
+                        <?php
+                        if ($_SESSION['real_name']) {
+                            echo '您好,' . $_SESSION['real_name'];
+
+                            echo "<p class=\"navbar-text pull-right\">您好," . $_SESSION['real_name'] . "<a href=\"#\" class=\"navbar-link\">&nbsp;|&nbsp;退出</a></p>";
+                        } else {
+                            ?>
+                            <form class="navbar-form pull-right">
+                                <input class="span2" type="text" placeholder="用户名">
+                                <input class="span2" type="password" placeholder="密码">
+                                <button type="submit" class="btn">登录</button>
+                            </form>
+                            <?php
+                        }
+                        ?>
+
                     </div><!--/.nav-collapse -->
                 </div>
             </div>
