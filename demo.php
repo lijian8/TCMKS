@@ -312,7 +312,7 @@ if ($_SESSION['msg']) {
                         并实现综述与结构性知识的关联、综述内容检索、全文链接等功能。
                     </p>
                     <div align="center"><div class="container_button">
-                        <a href="index.php"><font face="微软雅黑" color="white">进入系统</font></a>
+                        <a href="main.php"><font face="微软雅黑" color="white">进入系统</font></a>
                     </div></div>
                     
                     <div class="clear"></div>

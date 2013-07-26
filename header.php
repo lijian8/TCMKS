@@ -17,6 +17,8 @@ and open the template in the editor.
         <meta name="description" content="">
         <meta name="author" content="">
         <script src="./ckeditor/ckeditor.js"></script>
+        <link rel="stylesheet" href="./treeview/jquery.treeview.css" />
+        <link rel="stylesheet" href="./treeview/screen.css" />
         <link rel="stylesheet" href="ckeditor/samples/sample.css">
         <!-- Le styles -->
         <link href="css/bootstrap.css" rel="stylesheet">
@@ -73,7 +75,7 @@ and open the template in the editor.
                         <ul class="nav">
                             <li><a class="brand" href="main.php">中医药知识服务平台</a></li>
                             <li  class="active"><a href="main.php">主页</a></li>
-                          
+
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">知识<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
