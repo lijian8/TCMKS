@@ -17,9 +17,9 @@ include_once ("./header.php");
                 <div class="nav-collapse collapse navbar-responsive-collapse">
                     <ul class="nav">
                         <li><a  href="create_article.php">创建综述</a></li>
-    
-                        
-                       
+
+
+
                         <li><a href="#">删除综述</a></li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">标签 <b class="caret"></b></a>
@@ -47,7 +47,7 @@ include_once ("./header.php");
     </div><!-- /navbar -->
 </div>
 <div class="container"> 
-    
+
     <table class="table table-hover">
         <tbody>
             <tr class="info">
@@ -83,7 +83,21 @@ include_once ("./header.php");
                 return $s;
             }
 
+            function delete_article($dbc, $article_id, $abstract) {
+                $query = "DELETE FROM article WHERE id = '$article_id'";
+                mysqli_query($dbc, $query);
+                $query = "DELETE FROM authorship WHERE article_id = '$article_id'";
+                mysqli_query($dbc, $query);
+                $query = "DELETE FROM segment WHERE id = '$abstract'";
+                mysqli_query($dbc, $query);            
+                
+            }
+
             $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
+
+            if (isset($_GET['delete'])) {
+                delete_article($dbc, $_GET['delete'], $_GET['abstract']);
+            }
 
             $query = "SELECT * FROM article";
             $result = mysqli_query($dbc, $query) or die('Error querying database.');
@@ -111,14 +125,19 @@ include_once ("./header.php");
 
                 echo '<td>' . $row['title'] . '</td>';
                 //echo '<td>' . $row['abstract'] . '</td>';
-                echo '<td>' . get_abstract($dbc, $row['id'], $row['first']) . '</td>';
+                $row['segments'];
+                $segments = explode('|', $row['segments']);
+
+                echo '<td>' . get_abstract($dbc, $row['id'], $segments[1]) . '</td>';
                 echo '<td>' . $row['create_time'] . '</td>';
 
 
 
 
                 echo '<td><a class="btn" href="article.php?id=' . $row['id'] . '"><i class="icon-edit"></i></a>';
-                echo '<a class="btn" href="create_article.html"><i class="icon-trash"></i></a></td></tr>';
+
+
+                echo '<a class="btn" href="' . $_SERVER['PHP_SELF'] . '?delete=' . $row['id'] . '&abstract='.$segments[1].'"><i class="icon-trash"></i></a></td></tr>';
             }
 
             mysqli_close($dbc);

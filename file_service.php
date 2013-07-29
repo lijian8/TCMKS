@@ -6,11 +6,10 @@ require_once('connectvars.php');
 $q = $_GET["q"];
 
 function listArticles($dbc, $q) {
-    if (!strncmp($q, BIBLIO,strlen(BIBLIO))){
+    if (!strncmp($q, BIBLIO, strlen(BIBLIO))) {
         $q = substr($q, strlen(BIBLIO));
-        
     }
-    
+
     $query = "SELECT * FROM resource where id like '%$q%' ORDER BY title ASC";
 
     $data = mysqli_query($dbc, $query);
@@ -21,7 +20,7 @@ function listArticles($dbc, $q) {
 
         //echo $row['id'];
         $paper = '[' . $row['id'] . ']' . $row['authors'] . '.' . $row['title'] . '.' . $row['journal'] . ',' . $row['year'] . ',' . $row['pages'] . ',' . $row['publisher'] . '.';
-        $text = '<label onClick="javascript:fileSelected(\''. BIBLIO . $row ['id'] . '\');">' . $paper . '</label>';
+        $text = '<label onClick="javascript:fileSelected(\'' . BIBLIO . $row ['id'] . '\');">' . $paper . '</label>';
         if ($hint == "") {
             /*
               $hint = "<a href='" . type="button"
@@ -44,13 +43,29 @@ function listArticles($dbc, $q) {
     return $hint;
 }
 
-function listImages($dbc, $q) {
-    
-    if (!strncmp($q, FIGURE,strlen(FIGURE))){
-        $q = substr($q, strlen(FIGURE));
-        
+function listConcepts($dbc, $q) {
+    $query = "SELECT * FROM def where name like '%$q%' ORDER BY name ASC";
+    $data = mysqli_query($dbc, $query);
+    $hint = "";
+
+    while ($row = mysqli_fetch_array($data)) {
+        $paper = $row['name'] . '.' . $row['def'] ;
+        $text = '<label onClick="javascript:fileSelected(\'' . $row['name'] . '\');">' . $paper . '</label><br/>';
+        if ($hint == "") {
+            $hint = $text;
+        } else {
+            $hint = $hint . $text;
+        }
     }
-    
+    return $hint;
+}
+
+function listImages($dbc, $q) {
+
+    if (!strncmp($q, FIGURE, strlen(FIGURE))) {
+        $q = substr($q, strlen(FIGURE));
+    }
+
     $query = "SELECT * FROM images where id like '%$q%' or name like '%$q%' ORDER BY id ASC";
 
     $data = mysqli_query($dbc, $query);
@@ -60,8 +75,8 @@ function listImages($dbc, $q) {
     while ($row = mysqli_fetch_array($data)) {
         //$link = '['. FIGURE . $row['id'] . ']' . $row['name'];
         //$link = '['. FIGURE . $row['id'] . ']' . $row['name'];
-        $paper = '['. FIGURE . $row['id'] . ']' . $row['name'] . '.' . $row['description'];
-        $text = '<label onClick="javascript:fileSelected(\'' . FIGURE .  $row['id']  . '\');">' . $paper . '</label><br/>';
+        $paper = '[' . FIGURE . $row['id'] . ']' . $row['name'] . '.' . $row['description'];
+        $text = '<label onClick="javascript:fileSelected(\'' . FIGURE . $row['id'] . '\');">' . $paper . '</label><br/>';
         if ($hint == "") {
             $hint = $text;
         } else {
@@ -83,6 +98,13 @@ if (strlen($q) > 0) {
     }
 
     $text = listImages($dbc, $q);
+    if ($hint == "") {
+        $hint = $text;
+    } else {
+        $hint = $hint . $text;
+    }
+    
+    $text = listConcepts($dbc, $q);
     if ($hint == "") {
         $hint = $text;
     } else {

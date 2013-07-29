@@ -46,10 +46,12 @@
 
 
 <div class="input-append" class="span8">
-    <input id="fileSearchInput" type="text" size="15" onkeyup="renderFileSearchPanel(this.value)">
+    <input id="fileSearchInput" type="text"  class ="input-xxlarge" onkeyup="renderFileSearchPanel(this.value)">
     <input id="fileSearchURI" type="hidden">
-   
-    <input id="select" class="btn btn-success" type="button" value="插入链接" onclick="InsertText();" />
+    <!--
+    <input id="select" class="btn btn-success" type="button"  onclick="InsertText();"><i class="icon-search icon-white"></i></input>
+    -->
+    <a class="btn btn-success" href="javascript:InsertText();"><i class="icon-plus  icon-white"></i></a>
     
 </div>
 <div class="container" id="fileSearchPanel"></div>

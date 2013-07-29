@@ -2,21 +2,50 @@
 require_once('appvars.php');
 require_once('connectvars.php');
 
-function delete_segment($dbc, $id) {
+function renderTags($dbc, $c_id) {
+    $query = "SELECT * FROM tags WHERE segment_id = '$c_id'";
+    //echo $query;
+    $result = mysqli_query($dbc, $query) or die('Error querying database.');
+    $tags = array();
+    while ($row = mysqli_fetch_array($result)) {
+        $link = '<a href="javascript:invokePopupService(\'' . $row[tag] . '\');">' . $row[tag] . '</a>';
 
-    $query = "SELECT * FROM segment WHERE id = '$id'";
+        array_push($tags, $link);
+    }
+
+    if (count($tags) > 0) {
+        echo '标签：' . implode(', ', $tags);
+    }
+}
+
+function delete_segment($dbc, $id, $segment_id) {
+
+    $query = "SELECT segments FROM article WHERE id = '$id'";
     $result = mysqli_query($dbc, $query) or die('Error querying database.');
     $row = mysqli_fetch_array($result);
-    $prev = $row['prev'];
-    $next = $row['next'];
 
-    $query = "UPDATE segment SET next = '$next' WHERE id = '$prev'";
+    $new_segments = str_replace('|' . $segment_id . '|', '|', $row['segments']);
 
-    $result = mysqli_query($dbc, $query) or die('Error querying database1.');
-
-    $query = "delete from segment where id = '$id'";
-    $result = mysqli_query($dbc, $query) or die('Error querying database1.');
+    $update = "update article set segments = '$new_segments' where id = '$id'";
+    mysqli_query($dbc, $update) or die('Error querying database.');
 }
+
+/*
+  function delete_segment($dbc, $id) {
+
+  $query = "SELECT * FROM segment WHERE id = '$id'";
+  $result = mysqli_query($dbc, $query) or die('Error querying database.');
+  $row = mysqli_fetch_array($result);
+  $prev = $row['prev'];
+  $next = $row['next'];
+
+  $query = "UPDATE segment SET next = '$next' WHERE id = '$prev'";
+
+  $result = mysqli_query($dbc, $query) or die('Error querying database1.');
+
+  $query = "delete from segment where id = '$id'";
+  $result = mysqli_query($dbc, $query) or die('Error querying database1.');
+  } */
 
 function getUsers($dbc, $article_id, $role) {
     $query = "SELECT * FROM `tcmks`.`authorship` as t1, `tcmks`.`users` as t2 where t1.author_id = t2.id and article_id = $article_id and role = '$role'";
@@ -60,6 +89,27 @@ function set_image_id($segment_id, $dbc) {
     return $images;
 }
 
+function delete_image($dbc, $id, $file) {
+
+    $file = IMG_UPLOADPATH . $file;
+    !unlink($file);
+
+    $query = "DELETE FROM images WHERE id = '$id'";
+    $result = mysqli_query($dbc, $query) or die('Error querying database1.');
+}
+
+function insert_segment($dbc, $id, $insert, $prev) {
+
+    $query1 = "SELECT segments FROM article WHERE id = '$id'";
+    $result1 = mysqli_query($dbc, $query1) or die('Error querying database.');
+    $row1 = mysqli_fetch_array($result1);
+
+    $new_segments = str_replace('|' . $prev . '|', '|' . $prev . '|' . $insert . '|', $row1['segments']);
+
+    $update = "update article set segments = '$new_segments' where id = '$id'";
+    mysqli_query($dbc, $update) or die('Error querying database.');
+}
+
 include_once ("./header.php");
 include_once ("./pop_up.php");
 //include_once ("./number_sign_processing.php");
@@ -72,9 +122,16 @@ if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
 
+    if (isset($_GET['delete_image'])) {
+        delete_image($dbc, $_GET['delete_image'], $_GET['delete_image_file']);
+    }
 
     if (isset($_GET['deleted_segment_id'])) {
-        delete_segment($dbc, $_GET['deleted_segment_id']);
+        delete_segment($dbc, $id, $_GET['deleted_segment_id']);
+    }
+
+    if (isset($_GET['insert'])) {
+        insert_segment($dbc, $id, $_GET['insert'], $_GET['prev']);
     }
 
 
@@ -88,10 +145,14 @@ if (isset($_GET['id'])) {
 
     $segment_id = $row1['first'];
 
+    $segments = explode('|', $row1[segments]);
+    //print_r($segments);
+
+
     $images = set_image_id($segment_id, $dbc);
     ?>
     <script type ="text/javascript">
-        function jump(link){
+        function jump(link) {
             window.location = "#" + link;
         }
     </script>
@@ -102,33 +163,40 @@ if (isset($_GET['id'])) {
 
                     <?php
                     //$segment_id = $row1['first'];
+
+
                     $is_first_segment = true;
+                    //print_r($segments);
+                    //$i = 0;
+                    //while ($segment_id != 0) {
+                    foreach ($segments as $segment_id) {
 
-                    $i = 0;
-                    while ($segment_id != 0) {
+                        if ('' != $segment_id) {
+                            // echo 'echo:'.$segment_id;
 
-                        $q2 = "SELECT * FROM segment WHERE id = '$segment_id'";
-                        $r2 = mysqli_query($dbc, $q2) or die('Error querying database2.');
-                        $row2 = mysqli_fetch_array($r2);
+                            $q2 = "SELECT * FROM segment WHERE id = '$segment_id'";
+                            $r2 = mysqli_query($dbc, $q2) or die('Error querying database2.');
+                            $row2 = mysqli_fetch_array($r2);
 
-                        $c_id = $row2['id'];
-                        $c_title = $row2['title'];
-                        //echo $c_title;
-                        $c_rank = $row2['rank'];
+                            $c_id = $row2['id'];
+                            $c_title = $row2['title'];
+                            //echo $c_title;
+                            $c_rank = $row2['rank'];
 
-                        if ($c_rank == 1) {
-                            //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
-                            echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
+                            if ($c_rank == 1) {
+                                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
+                                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
 
-                            //'<h2>' . $c_title . '</h2>';
-                        } else {
-                            //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
-                            echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
+                                //'<h2>' . $c_title . '</h2>';
+                            } else {
+                                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
+                                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
 
-                            //echo '<h3>' . $c_title . '</h3>';
+                                //echo '<h3>' . $c_title . '</h3>';
+                            }
+                            //$i++;
+                            //$segment_id = $row2['next'];
                         }
-                        $i++;
-                        $segment_id = $row2['next'];
                     }
 
                     //mysqli_close($dbc);
@@ -168,105 +236,140 @@ if (isset($_GET['id'])) {
                 //to do: authors
                 //echo '<h2>摘要</h2>' . $abstract;
                 //echo '<HR color=#987cb9 size=1>';
-
-                $segment_id = $row1['first'];
+                //$segment_id = $row1['first'];
                 $is_first_segment = true;
                 $j = 0;
-                while ($segment_id != 0) {
-                    //echo '<section id="s' . $j . '">';
-                    echo '<section id="s' . $segment_id . '">';
-                    $j++;
-                    $q2 = "SELECT * FROM segment WHERE id = '$segment_id'";
-                    $r2 = mysqli_query($dbc, $q2) or die('Error querying database2.');
-                    $row2 = mysqli_fetch_array($r2);
+                //while ($segment_id != 0) {
+                foreach ($segments as $segment_id) {
+                    if ('' != $segment_id) {
+                        //echo '<section id="s' . $j . '">';
+                        echo '<section id="s' . $segment_id . '">';
+                        $j++;
+                        $q2 = "SELECT * FROM segment WHERE id = '$segment_id'";
+                        $r2 = mysqli_query($dbc, $q2) or die('Error querying database2.');
+                        $row2 = mysqli_fetch_array($r2);
 
-                    $c_id = $row2['id'];
-                    $c_title = $row2['title'];
-                    $c_content = $row2['content'];
-                    $c_rank = $row2['rank'];
+                        $c_id = $row2['id'];
+                        $c_title = $row2['title'];
+                        $c_content = $row2['content'];
+                        $c_rank = $row2['rank'];
 
-                    if ($c_rank == 1) {
-                        echo '<div class="page-header"><h2><font face="微软雅黑">' . $c_title . '</font></h2></div>';
-                        //echo '<h2><font face="微软雅黑">' . $c_title . '</font></h2>';
-                    } else {
-                        echo '<div class="page-header"><h3><font face="微软雅黑">' . $c_title . '</font></h3></div>';
-                        //echo '<h3><font face="微软雅黑">' . $c_title . '</font></h3>';
-                    }
-
-                    //echo '<p>' . $c_content . '</p>';
-                    //$c_content_processed = process_number_sign($c_content);
-                    //echo '<p>' . $c_content_processed["content"] . '</p>';
-                    //$results = process_number_sign($c_content);
-                    //$biblio = array_merge($biblio, $results[biblio]);
-
-                    preg_match_all('/#(.*?)#/', $c_content, $out);
-
-
-                    foreach ($out[1] as $word) {
-
-                        if (!strncmp($word, BIBLIO, strlen(BIBLIO))) {
-                            $word = substr($word, strlen(BIBLIO));
-                            //echo "is biblio;";
-                            if (in_array($word, $biblio)) {
-                                $key = array_search($word, $biblio);
-                            }else{
-                                $key = array_push($biblio, $word);
-                            }
-                           
-                            //$link = '<a href="javascript:invokePopupService(\'' . $word . '\',\'resource\');">[' . $key . ']</a>';
-                            //$link = "<a href=\"#$word\">[$key]</a>";
-                           
-                            $link = "<a href=\"javascript:jump('$word');\">[$key]</a>";
-                            $c_content = str_replace("#" . BIBLIO . "$word#", $link, "$c_content");
-                        } else if (!strncmp($word, FIGURE, strlen(FIGURE))) {
-                            $word = substr($word, strlen(FIGURE));
-                            //echo "is image;";
-
-                            $link = '<a href="javascript:invokePopupService(\'' . $word . '\',\'image\');">' . FIGURE . $images[$word] . '</a>';
-                            $c_content = str_replace("#" . FIGURE . "$word#", $link, "$c_content");
+                        if ($c_rank == 1) {
+                            //echo '<div class="page-header"><h2><font face="微软雅黑">' . $c_title . '</font></h2></div>';
+                            echo '<h3><font face="微软雅黑">' . $c_title . '</font></h3>';
                         } else {
-                            $link = '<a href="javascript:invokePopupService(\'' . $word . '\');">' . $word . '</a>';
-                            $c_content = str_replace("#$word#", $link, "$c_content");
+                            //echo '<div class="page-header"><h3><font face="微软雅黑">' . $c_title . '</font></h3></div>';
+                            echo '<h4><font face="微软雅黑">' . $c_title . '</font></h4>';
                         }
+
+
+                        renderTags($dbc, $c_id);
+                        //echo '<p>' . $c_content . '</p>';
+                        //$c_content_processed = process_number_sign($c_content);
+                        //echo '<p>' . $c_content_processed["content"] . '</p>';
+                        //$results = process_number_sign($c_content);
+                        //$biblio = array_merge($biblio, $results[biblio]);
+
+                        preg_match_all('/#(.*?)#/', $c_content, $out);
+
+
+                        foreach ($out[1] as $word) {
+
+                            if (!strncmp($word, BIBLIO, strlen(BIBLIO))) {
+                                $word = substr($word, strlen(BIBLIO));
+                                //echo "is biblio;";
+                                if (in_array($word, $biblio)) {
+                                    $key = array_search($word, $biblio);
+                                } else {
+                                    $key = array_push($biblio, $word);
+                                }
+
+                                //$link = '<a href="javascript:invokePopupService(\'' . $word . '\',\'resource\');">[' . $key . ']</a>';
+                                //$link = "<a href=\"#$word\">[$key]</a>";
+
+                                $link = "<a href=\"javascript:jump('$word');\">[$key]</a>";
+                                $c_content = str_replace("#" . BIBLIO . "$word#", $link, "$c_content");
+                            } else if (!strncmp($word, FIGURE, strlen(FIGURE))) {
+                                $word = substr($word, strlen(FIGURE));
+                                //echo "is image;";
+
+                                $link = '<a href="javascript:invokePopupService(\'' . $word . '\',\'image\');">' . FIGURE . $images[$word] . '</a>';
+                                $c_content = str_replace("#" . FIGURE . "$word#", $link, "$c_content");
+                            } else {
+                                $link = '<a href="javascript:invokePopupService(\'' . $word . '\');">' . $word . '</a>';
+                                $c_content = str_replace("#$word#", $link, "$c_content");
+                            }
+                        }
+
+                        echo '<p>' . $c_content . '</p>';
+
+                        $q3 = "SELECT * FROM images WHERE segment_id = '$segment_id'";
+                        $r3 = mysqli_query($dbc, $q3) or die('Error querying database2.');
+                        while ($row3 = mysqli_fetch_array($r3)) {
+                            $image_id = $row3['id'];
+                            $image_file = $row3['file'];
+                            echo '<div class="row-fluid">';
+                            echo '<ul class="thumbnails">';
+                            echo '<li class="span12">';
+
+                            echo '<div class="thumbnail">';
+                            echo "<div align = \"right\"><a href=\"?id=$id&delete_image=$image_id&delete_image_file=$image_file \" ><i class=\"icon-remove-sign\"></i></a></div>";
+
+                            echo '<img src="' . IMG_UPLOADPATH . $image_file . '"  alt="" />';
+                            echo '<div class="caption">';
+                            echo '<h4>' . FIGURE . $images[$row3['id']] . '.' . $row3['name'] . '</h4>';
+                            echo '<p>' . $row3[description];
+                            echo '</p>';
+                            echo '</div></div></li></ul></div>';
+                        }
+
+                        echo "<ul class=\"nav nav-pills\">";
+
+                        echo "<li class=\"active\"><a href=\"editor.php?act=edit&article_id=$id&id=$c_id\"><i data-toggle=\"tooltip\" title=\"编辑本段\" class=\"icon-edit\"></i>&nbsp;&nbsp;编辑本段</a></li>";
+
+                        if ($is_first_segment) {
+                            $is_first_segment = false;
+                        } else {
+                            //echo '<li class=\"active\"><a href="article.php?id=' . $id . '&deleted_segment_id=' . $c_id . '"><i data-toggle="tooltip" title="删除本段" class="icon-trash"></i>&nbsp;&nbsp;删除本段</a></li>';
+                            echo "<li class=\"active\"><a href=\"article.php?id=$id&deleted_segment_id=$c_id\"><i data-toggle=\"tooltip\" title=\"删除本段\" class=\"icon-trash\"></i>&nbsp;&nbsp;删除本段</a></li>";
+                        }
+
+                        echo "<li class=\"dropdown\">";
+                        echo "<a class=\"dropdown-toggle\" id=\"drop4\" role=\"button\" data-toggle=\"dropdown\" href=\"#\">在下方插入段落<b class=\"caret\"></b></a>";
+                        echo "<ul id=\"menu1\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"drop4\">";
+                        echo "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"editor.php?act=insert&article_id=$id&id=$c_id\">创建新的段落</a></li>";
+                        echo "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"segment_selector.php?article_id=$id&prev=$c_id\">插入已有段落</a></li>";
+                        echo "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\">拷贝已有段落</a></li>";
+
+                        echo "</ul></li>";
+//echo '<a href="editor.php?act=edit&article_id=' . $id . '&id=' . $c_id . '"><i data-toggle="tooltip" title="编辑本段" class="icon-edit"></i></a>';
+                        echo "<li class=\"dropdown\">";
+                        echo "<a class=\"dropdown-toggle\" id=\"drop4\" role=\"button\" data-toggle=\"dropdown\" href=\"#\">插入图片<b class=\"caret\"></b></a>";
+                        echo "<ul id=\"menu1\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"drop4\">";
+                        echo "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"upload_image.php?article_id=$id&segment_id=$c_id\">上传新图片</a></li>";
+
+                        echo "</ul></li></ul>";
+                        /*
+
+                          echo '<a href="editor.php?act=insert&article_id=' . $id . '&id=' . $c_id . '"><i data-toggle="tooltip" title="插入已有段落" class="icon-plus"></i></a>';
+                          echo '&nbsp;&nbsp';
+
+                          echo '<a href="editor.php?act=insert&article_id=' . $id . '&id=' . $c_id . '"><i data-toggle="tooltip" title="创建新的段落" class="icon-plus"></i></a>';
+                          echo '&nbsp;&nbsp';
+                          echo '<a href="upload_image.php?article_id=' . $id . '&segment_id=' . $c_id . '"><i data-toggle="tooltip" title="上传并插入图片" class="icon-picture"></i></a>';
+                          echo '&nbsp;&nbsp';
+                         * 
+                         */
+
+
+
+
+
+                        echo '<HR color=#987cb9 size=1>';
+
+                        //$segment_id = $row2['next'];
+                        echo '</section>';
                     }
-
-                    echo '<p>' . $c_content . '</p>';
-
-                    $q3 = "SELECT * FROM images WHERE segment_id = '$segment_id'";
-                    $r3 = mysqli_query($dbc, $q3) or die('Error querying database2.');
-                    while ($row3 = mysqli_fetch_array($r3)) {
-                        echo '<div class="row-fluid">';
-                        echo '<ul class="thumbnails">';
-                        echo '<li class="span12">';
-                        echo '<div class="thumbnail">';
-                        echo '<img src="' . IMG_UPLOADPATH . $row3['file'] . '"  alt="" />';
-                        echo '<div class="caption">';
-                        echo '<h3>' . FIGURE . $images[$row3['id']] . '.' . $row3['name'] . '</h3>';
-                        echo '<p>' . $row3[description] . '</p>';
-                        //echo '<p><a href="#" class="btn btn-primary">查看</a></p>';
-                        echo '</div></div></li></ul></div>';
-                    }
-
-
-                    echo '<a href="editor.php?act=edit&article_id=' . $id . '&id=' . $c_id . '"><i class="icon-edit"></i></a>';
-                    echo '&nbsp;&nbsp';
-                    echo '<a href="editor.php?act=insert&article_id=' . $id . '&id=' . $c_id . '"><i class="icon-plus"></i></a>';
-                    echo '&nbsp;&nbsp';
-                    echo '<a href="upload_image.php?article_id='.$id.'&segment_id=' . $c_id . '"><i class="icon-picture"></i></a>';
-                    echo '&nbsp;&nbsp';
-
-                    if ($is_first_segment) {
-                        $is_first_segment = false;
-                    } else {
-                        echo '<a href="article.php?id=' . $id . '&deleted_segment_id=' . $c_id . '"><i class="icon-trash"></i></a>';
-                    }
-
-
-
-                    echo '<HR color=#987cb9 size=1>';
-
-                    $segment_id = $row2['next'];
-                    echo '</section>';
                 }
                 echo '<section id="biblio">';
                 echo '<div class="page-header"><h2><font face="微软雅黑">参考文献</font></h2></div>';
@@ -275,7 +378,7 @@ if (isset($_GET['id'])) {
                     $q3 = "SELECT * FROM resource WHERE id = '$ref'";
                     $r3 = mysqli_query($dbc, $q3) or die('Error querying database2.');
                     while ($row3 = mysqli_fetch_array($r3)) {
-                        echo "<li id = \"".$row3['id']."\">";
+                        echo "<li id = \"" . $row3['id'] . "\">";
                         //echo "<a name =\"".$row3['id']."\">";
                         $link = '<a href="javascript:invokePopupService(\'' . $row3['id'] . '\',\'resource\');">[' . $row3['id'] . ']</a>';
 
@@ -285,7 +388,7 @@ if (isset($_GET['id'])) {
                         if (is_file(GW_UPLOADPATH . $file_name)) {
                             echo '<a class = "btn btn-warning" href="' . GW_UPLOADPATH . $row3['file'] . '"><i class="icon-download-alt icon-white"></i>下载原文</a>';
                         }
-                        
+
                         echo '</li>';
                     }
                 }
@@ -299,6 +402,6 @@ if (isset($_GET['id'])) {
         </div>
 
     </div>
-<?php
-include_once ("./foot.php");
-?>
+    <?php
+    include_once ("./foot.php");
+    ?>

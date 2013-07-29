@@ -23,10 +23,21 @@ require_once('connectvars.php');
   }
  */
 $id = $_GET["id"];
-$hint = "<p><strong>人参</strong>，多年生草本植物，喜阴凉、湿润的气候，多生长于昼夜温差小的海拔500～1100米山地缓坡或斜坡地的针阔混交林或杂木林中。由于根部肥大，形若纺锤，常有分叉，全貌颇似人的头、手、足和四肢，故而称为人参。古代人参的雅称为黄精、地精、神草。人参被人们称为“百草之王”，是闻名遐迩的“东北三宝”（人参、貂皮、鹿茸）之一，是驰名中外、老幼皆知的名贵药材。</p>";
+
+$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+$query = "SELECT def FROM def WHERE name = '$id'";
+//echo $query;
+$result = mysqli_query($dbc, $query) or die('Error querying database1.');
+if ($row = mysqli_fetch_array($result)) {
+    $def = $row['def'];
+    
+    $hint = "<p><strong>$id</strong>，".$def."</p>";
+}
+
 
 if ($hint == "") {
-    $response = "无相关资源";
+    $response = "无相关概念信息！";
 } else {
     $response = $hint;
 }

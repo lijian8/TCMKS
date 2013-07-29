@@ -1,5 +1,43 @@
 <?php
 include_once ("./header.php");
+
+function getTags($dbc, $segment_id) {
+    $query = "SELECT * FROM tags WHERE segment_id = '$segment_id'";
+    //echo $query;
+    $result = mysqli_query($dbc, $query) or die('Error querying database.');
+    $tags = array();
+    while ($row = mysqli_fetch_array($result)) {
+        array_push($tags, $row[tag]);
+    }
+
+    return implode(', ', $tags);
+}
+
+function modifyTags($dbc, $segment_id, $tag_string) {
+
+    $query = "DELETE FROM tags WHERE segment_id = '$segment_id'";
+    //echo $query;
+    mysqli_query($dbc, $query) or die('Error querying database.');
+
+    $tag_string = str_replace(',', ' ', $tag_string);
+    $tag_string = str_replace('，', ' ', $tag_string);
+    $tag_string = str_replace('.', ' ', $tag_string);
+    $tag_string = str_replace('。', ' ', $tag_string);
+    $tag_string = str_replace('；', ' ', $tag_string);
+
+    $tags = explode(' ', $tag_string);
+    //$final_tags = array();
+    if (count($tags) > 0) {
+        foreach ($tags as $tag) {
+            if (!empty($tag)) {
+                //$final_tags[] = $tag;
+                $query = "INSERT INTO tags VALUES('$segment_id','$tag')";
+                mysqli_query($dbc, $query) or die('Error querying database.');
+            }
+        }
+    }
+}
+
 $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
 
 if (isset($_GET['id'])) {
@@ -13,6 +51,8 @@ if (isset($_GET['id'])) {
     if ($_GET['act'] == 'edit') {
         $title = $row['title'];
         $content = $row['content'];
+        $rank = $row['rank'];  
+        $tags = getTags($dbc, $id);
     } else {
         $query = "SELECT MAX(id) as id FROM `tcmks`.`segment`";
         $result = mysqli_query($dbc, $query) or die('Error querying database1.');
@@ -22,17 +62,30 @@ if (isset($_GET['id'])) {
                 "VALUES ('$nid','$article_id','$id', '$next')";
         $result = mysqli_query($dbc, $query) or die('Error querying database2.');
 
-        $query = "UPDATE segment SET next = '$nid' WHERE id = '$id'";
-        $result = mysqli_query($dbc, $query) or die('Error querying database2.');
+        $query1 = "SELECT segments FROM article WHERE id = '$article_id'";
+        $result1 = mysqli_query($dbc, $query1) or die('Error querying database.');
+        $row1 = mysqli_fetch_array($result1);
+
+        $new_segments = str_replace(',' . $id, ',' . $id . ',' . $nid, $row1['segments']);
+
+        $update = "update article set segments = '$new_segments' where id = '$article_id'";
+        mysqli_query($dbc, $update) or die('Error querying database.');
+
+        //$query = "UPDATE segment SET next = '$nid' WHERE id = '$id'";
+        //$result = mysqli_query($dbc, $query) or die('Error querying database2.');
         $id = $nid;
     }
 } else {
     $id = $_POST['id'];
     $title = $_POST['title'];
+    $rank = $_POST['rank'];    
     $content = $_POST['content'];
     $article_id = $_POST['article_id'];
-    $query = "UPDATE segment SET title = '$title', content = '$content' WHERE id = '$id'";
+    $tags = $_POST['tags'];
+    $query = "UPDATE segment SET rank = '$rank', title = '$title', content = '$content' WHERE id = '$id'";
+    
     $result = mysqli_query($dbc, $query) or die('Error querying database.');
+    modifyTags($dbc, $id, $tags);
 }
 mysqli_close($dbc);
 ?>
@@ -58,19 +111,32 @@ mysqli_close($dbc);
 
 <div class="container">
 
-    <form method="post" class="form-inline" action="editor.php">
-        <legend>请编辑段落：</legend>
-        <label  for="title">段落标题:</label>
-        <div class="input-append" class="span8">
-            <input  type="text" id="title"  cols="200" name="title" value ="<?php echo $title; ?>">
-            <select  name="rank">
-                <option value="0">一级标题</option>
-                <option value="1">二级标题</option>
-            </select>
+    <form method="post" class="form-horizontal" action="editor.php">
+        <legend>编辑段落：</legend>
+        <div class="control-group">
+            <label class="control-label" for="title">段落标题:</label>
+            <div class="input-append" class="span12">
+                <input  type="text" id="title" class ="input-xxlarge" name="title" value ="<?php echo $title; ?>">
+                <select  name="rank">
+                    <option <?php if ($rank == 1) echo 'selected="selected"'; ?>  value="1">一级标题</option>
+                    <option <?php if ($rank == 2) echo 'selected="selected"'; ?> value="2">二级标题</option>
+                </select>
+            </div>
         </div>
-        <?php
-        include_once ("./file_selector.php");
-        ?>
+
+        <div class="control-group">
+            <label class="control-label" for="title">标签:</label>
+            <input  type="text" id="tags" class ="input-xxlarge" cols="200" name="tags" value ="<?php echo $tags; ?>">
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">插入链接:</label>
+            <?php
+            include_once ("./file_selector.php");
+            ?>
+        </div>
+
+
 
 
         <p></p>

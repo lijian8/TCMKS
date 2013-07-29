@@ -44,8 +44,16 @@ if (isset($_POST['submit'])) {
 
     $segment_id = insert_abstract($dbc, $abstract, $id);
 
-    $query = "UPDATE article SET first = '$segment_id' where id = '$id'";
+    $query = "UPDATE article SET segments = '|$segment_id|' where id = '$id'";
     mysqli_query($dbc, $query) or die('Error querying database5.');
+
+
+    $creator = $_SESSION['id'];
+    $query = "INSERT INTO authorship (article_id, author_id, role) " .
+            "VALUES ('$id','$creator', 'creator')";
+    //echo $query;
+    mysqli_query($dbc, $query) or die('Error querying database:');
+
 
     $authors = $_POST['authors'];
     if (empty($authors)) {
@@ -73,7 +81,7 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    
+
     $publishers = $_POST['publishers'];
     if (empty($publishers)) {
         echo("您未指定评审！");
@@ -133,7 +141,7 @@ if (isset($_POST['submit'])) {
                     </select>
                 </div>
             </div>
-                  <div class="control-group">
+            <div class="control-group">
                 <!-- Select Multiple -->
                 <label class="control-label" for="publishers[]">发布者:</label>
                 <div class="controls">

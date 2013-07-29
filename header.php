@@ -2,6 +2,20 @@
 session_name('tzLogin');
 // Starting the session
 session_start();
+
+if (isset($_GET['logoff'])) {
+    $_SESSION = array();
+    session_destroy();
+
+    header("Location: demo.php");
+    exit;
+}
+
+
+if (!isset($_SESSION['real_name'])||!isset($_SESSION['usr'])||!isset($_SESSION['id'])) {
+    header("Location: demo.php");
+    exit;
+}
 ?>
 <!--
 To change this template, choose Tools | Templates
@@ -76,25 +90,20 @@ and open the template in the editor.
                             <li><a class="brand" href="main.php">中医药知识服务平台</a></li>
                             <li  class="active"><a href="main.php">主页</a></li>
 
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">知识<b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="navigator.php">检索</a></li>
-                                    <li><a href="index.php">编审</a></li>                                    
-                                </ul>
-                            </li>
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">专家<b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="#">浏览</a></li>
-                                    <li><a href="#">个人信息</a></li>                                    
-                                </ul>
-                            </li>
+
+                            <li><a href="navigator.php">知识检索</a></li>
+
+                            <li><a href="index.php">综述编审</a></li>
+
+                            <li><a href="experts.php">领域专家</a></li>
+
+
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">管理<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="article_manager.php">文献管理</a></li>
-                                    <li><a href="image_manager.php">图片管理</a></li>                                    
+                                    <li><a href="article_manager.php">文献</a></li>
+                                    <li><a href="image_manager.php">图片</a></li> 
+                                    <li><a href="me.php">我的信息</a></li> 
                                 </ul>
                             </li>
                             <li><a href="#contact">帮助</a></li>
@@ -105,7 +114,9 @@ and open the template in the editor.
                         if ($_SESSION['real_name']) {
                             echo '您好,' . $_SESSION['real_name'];
 
-                            echo "<p class=\"navbar-text pull-right\">您好," . $_SESSION['real_name'] . "<a href=\"#\" class=\"navbar-link\">&nbsp;|&nbsp;退出</a></p>";
+                            echo "<p class=\"navbar-text pull-right\">您好," . $_SESSION['real_name'] . "&nbsp;|&nbsp;" . "<a href=\"?logoff\" class=\"navbar-link\">退出</a></p>";
+                           
+                            
                         } else {
                             ?>
                             <form class="navbar-form pull-right">

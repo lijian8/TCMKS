@@ -2,19 +2,19 @@
 include_once ("./header.php");
 ?>
 <div class="container">
-    <div class="well">
-        <img width ="100%" src ="img/stripe.jpg"></img>                    
+    <div class="container">
+        <img width ="100%" src ="img/banner.jpg"></img>                    
     </div>
-    
+    <p></p>
     <div class="row-fluid marketing">
         <div class="span6">
               <div class="media">
                 <a class="pull-left" href="navigator.php">
-                    <img class="media-object" src="img/review.jpg" data-src="holder.js/64x64">
+                    <img class="media-object" src="img/resources.jpg" data-src="holder.js/64x64">
                 </a>
                 <div class="media-body"  align ="left">
-                    <h4 class="media-heading">知识</h4>
-                    <p>编审并检索主题综述及相关知识资源。</p>
+                    <h4 class="media-heading">知识整合</h4>
+                    <p>从知识组织系统、科学数据库、文献库和博客等知识源中搜集中医药知识资源，基于知识图谱实现知识资源的整合。</p>
                 </div>
             </div>
             <div class="media">
@@ -22,8 +22,8 @@ include_once ("./header.php");
                     <img class="media-object" src="img/experts.jpg" data-src="holder.js/64x64">
                 </a>
                 <div class="media-body" align ="left">
-                    <h4 class="media-heading">专家</h4>
-                    <p>浏览并编辑专家信息。</p>
+                    <h4 class="media-heading">领域专家</h4>
+                    <p>提供领域专家的各项信息以及发表的作品。</p>
                 </div>
             </div>
         </div>
@@ -32,11 +32,11 @@ include_once ("./header.php");
 
             <div class="media">
                 <a class="pull-left" href="article_manager.php">
-                    <img class="media-object" src="img/resources.jpg" data-src="holder.js/64x64">
+                    <img class="media-object" src="img/review.jpg" data-src="holder.js/64x64">
                 </a>
                 <div class="media-body"  align ="left">
-                    <h4 class="media-heading">管理</h4>
-                    <p>对文献、图片等各种资源进行管理。</p>
+                    <h4 class="media-heading">综述编审</h4>
+                    <p>支持领域专家合作进行主题综述的编辑和评审，及时、准确地反映中医药领域科研的最新进展，支持领域专家进行临床决策。</p>
                 </div>
             </div>
             <div class="media">

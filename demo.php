@@ -300,7 +300,7 @@ if ($_SESSION['msg']) {
         <div class="pageContent">
             <div id="main">
                 <div class="container">
-                    <img width ="100%" src ="img/stripe.jpg"></img>                    
+                    <img width ="100%" src ="img/banner.jpg"></img>                    
                 </div>
 
                 <div class="container">
