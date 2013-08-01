@@ -1,18 +1,15 @@
 <?php
 include_once ("./header.php");
+include_once ("./image_helper.php");
 ?>
 <div class="row-fluid">
     <?php
     require_once('appvars.php');
     require_once('connectvars.php');
 
-    function getMaxImageId($dbc) {
-        $query = "SELECT MAX(id) AS id FROM `tcmks`.`images`";
+    
 
-        $result = mysqli_query($dbc, $query) or die('Error querying database.');
-        $row = mysqli_fetch_array($result);
-        return $row[id];
-    }
+    
 
     function renderImage($dbc, $id) {
         $query = "SELECT * FROM `tcmks`.`images` where id = '$id'";
@@ -28,12 +25,13 @@ include_once ("./header.php");
             echo '</div></div></li>';
         }
     }
-    if (isset($_GET['segment_id'])){
+
+    if (isset($_GET['segment_id'])) {
         $segment_id = $_GET['segment_id'];
         $article_id = $_GET['article_id'];
     }
     if (isset($_POST['submit'])) {
-       
+
         $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
         $name = $_POST['name'];
@@ -41,14 +39,19 @@ include_once ("./header.php");
         $discription = $_POST['discription'];
         $segment_id = $_POST['segment_id'];
         $article_id = $_POST['article_id'];
-        
-        if (isset($_POST['images'])){
+
+        if (isset($_POST['images'])) {
             $images = $_POST['images'];
-        }else{
+        } else {
             $images = array();
         }
         
-               
+        $image_id = upload_image($dbc, $name, $score, $discription);
+        
+        insert_into_segment($dbc, $segment_id, $image_id);
+        array_push($images, $image_id);
+
+        /*
         $screenshot = $_FILES['screenshot']['name'];
         $screenshot_type = $_FILES['screenshot']['type'];
         $screenshot_size = $_FILES['screenshot']['size'];
@@ -64,8 +67,10 @@ include_once ("./header.php");
                         $query = "INSERT INTO images VALUES (0,  '$name', '$screenshot', '$score', NOW(),'$discription','$segment_id')";
                         //echo $query;
                         mysqli_query($dbc, $query);
-                        array_push($images, getMaxImageId($dbc));
-                       
+                        $image_id = getMaxImageId($dbc);
+                        insert_into_segment($dbc, $segment_id, $image_id);
+                        array_push($images, $image_id);
+
 
                         $name = "";
                         $score = "";
@@ -118,12 +123,12 @@ include_once ("./header.php");
             <legend>请上传图片：</legend>
             <input type="hidden" name="segment_id" value="<?php echo $segment_id; ?>" />
             <input type="hidden" name="article_id" value="<?php echo $article_id; ?>" />
-            
-            
-            
+
+
+
             <?php
             foreach ($images as $image) {
-                echo '<input type="hidden" name="images[]" id ="image" value="'.$image.'" />';
+                echo '<input type="hidden" name="images[]" id ="image" value="' . $image . '" />';
             }
             ?>
 

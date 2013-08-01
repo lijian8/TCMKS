@@ -10,7 +10,7 @@ function listArticles($dbc, $q) {
         $q = substr($q, strlen(BIBLIO));
     }
 
-    $query = "SELECT * FROM resource where id like '%$q%' ORDER BY title ASC";
+    $query = "SELECT * FROM resource where id = '$q' or title like '%$q%' ORDER BY title ASC";
 
     $data = mysqli_query($dbc, $query);
 

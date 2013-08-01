@@ -1,5 +1,21 @@
 <?php
 include_once ("./header.php");
+include_once ("./resource_helper.php");
+
+require_once('appvars.php');
+require_once('connectvars.php');
+
+$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+if (isset($_GET['deleted_file'])) {
+
+    $deleted_file = get_title_by_id($dbc, $_GET['deleted_file']);
+
+    delete_resource($dbc, $_GET['deleted_file']);
+
+    echo '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>';
+    echo '文献"' . $deleted_file . '"已被删除!</div>';
+}
 ?>
 
 <div class="container">
@@ -14,8 +30,8 @@ include_once ("./header.php");
                 <a class="brand" href="#">文献管理</a>
                 <div class="nav-collapse collapse navbar-responsive-collapse">
                     <ul class="nav">
-                        <li><a  href="upload_file.php">上传文献</a></li>
-                       
+                        <li><a  href="upload_file.php?action=create">上传文献</a></li>
+
                         <li><a href="#">删除文献</a></li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">标签 <b class="caret"></b></a>
@@ -43,7 +59,7 @@ include_once ("./header.php");
     </div><!-- /navbar -->
 </div>
 <div class="container">
-    
+
 
     <table class="table table-hover">
         <tbody>
@@ -58,11 +74,6 @@ include_once ("./header.php");
             </tr>
 
             <?php
-            require_once('appvars.php');
-            require_once('connectvars.php');
-
-            $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-
             $query = "SELECT * FROM resource ORDER BY title ASC";
             $data = mysqli_query($dbc, $query);
 
@@ -83,13 +94,14 @@ include_once ("./header.php");
                 echo '<td width = "10%">' . $row['create_time'] . '</td>';
                 $file_name = iconv('utf-8', 'gb2312', $row['file']);
                 echo '<td width = "15%">';
-                echo '<a class="btn-link" href="upload_file.php"><i class="icon-edit"></i></a>';
+                echo '<a class="btn-link" href="upload_file.php?action=update&file_id='.$row[id].'"><i class="icon-edit"></i></a>';
 
                 if (is_file(GW_UPLOADPATH . $file_name)) {
                     echo '<a class="btn-link" href="' . GW_UPLOADPATH . $row['file'] . '"><i class="icon-download-alt"></i></a>';
                 }
 
-                echo '<a class="btn-link" href="create_article.html"><i class="icon-trash"></i></a></td></tr>';
+                $link_for_delete = $_SERVER['PHP_SELF'] . '?deleted_file=' . $row['id'];
+                echo '<a class="btn-link" href="' . $link_for_delete . '"><i class="icon-trash"></i></a></td></tr>';
             }
             ?>
         </tbody>

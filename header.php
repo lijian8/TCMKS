@@ -74,7 +74,7 @@ and open the template in the editor.
 
     </head>
 
-    <body >
+    <body style="font-family:微软雅黑">
 
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">

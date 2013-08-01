@@ -1,5 +1,6 @@
 <?php
 include_once ("./header.php");
+include_once ("./image_helper.php");
 require_once('appvars.php');
 require_once('connectvars.php');
 
@@ -12,12 +13,33 @@ function render_image($row) {
     echo $row['description'] . '</p>';
     echo '<a href="#"><i class="icon-edit"></i></a>';
     echo '&nbsp;&nbsp';
+    /*
     echo '<a href="#"><i class="icon-plus"></i></a>';
-    echo '&nbsp;&nbsp';
-    echo '<a href="#"><i class="icon-trash"></i></a>';
+    echo '&nbsp;&nbsp';*/
+    echo '<a href="'.$_SERVER['PHP_SELF'].'?deleted_image_id='.$row['id'].'"><i class="icon-trash"></i></a>';
     echo '&nbsp;&nbsp';
 
     echo '</div></div></li>';
+}
+
+$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+
+if (isset($_GET['deleted_image_id'])){
+    delete_image($dbc, $_GET['deleted_image_id']);
+}
+
+if (isset($_POST['submit'])) {
+
+    $name = $_POST['name'];
+
+    $score = $_POST['score'];
+
+    $discription = $_POST['discription'];
+
+    if ($image_id = upload_image($dbc, $name, $score, $discription)) {
+        echo '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>';
+        echo '图片"' . get_image_name($dbc, $image_id) . '"已成功插入!</div>';
+    }
 }
 ?>
 <script language="javascript" type="text/javascript">
@@ -69,25 +91,23 @@ function render_image($row) {
 </div>
 <div class="container">
     <div class="row-fluid">
-        <?php
-        $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
-
-        $query = "SELECT * FROM `tcmks`.`images`";
+<?php
+$query = "SELECT * FROM `tcmks`.`images`";
 //echo $query;
-        $result = mysqli_query($dbc, $query) or die('Error querying database.');
-        while ($row = mysqli_fetch_array($result)) {
+$result = mysqli_query($dbc, $query) or die('Error querying database.');
+while ($row = mysqli_fetch_array($result)) {
 
-            echo '<ul class = "thumbnails">';
-            render_image($row);
-            if ($row = mysqli_fetch_array($result))
-                render_image($row);
-            if ($row = mysqli_fetch_array($result))
-                render_image($row);
-            if ($row = mysqli_fetch_array($result))
-                render_image($row);
-            echo '</ul>';
-        }
-        ?>
+    echo '<ul class = "thumbnails">';
+    render_image($row);
+    if ($row = mysqli_fetch_array($result))
+        render_image($row);
+    if ($row = mysqli_fetch_array($result))
+        render_image($row);
+    if ($row = mysqli_fetch_array($result))
+        render_image($row);
+    echo '</ul>';
+}
+?>
     </div>
 </div>
 <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

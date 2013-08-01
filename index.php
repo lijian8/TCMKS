@@ -1,5 +1,8 @@
 <?php
 include_once ("./header.php");
+include_once ("./rights.php");
+
+$dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
 ?>
 <p></p>
 <!-- Subhead
@@ -47,103 +50,117 @@ include_once ("./header.php");
     </div><!-- /navbar -->
 </div>
 <div class="container"> 
+    <?php
+    if (has_article($dbc, $_SESSION['id'])) {
+        ?>
+        <table class="table table-hover">
+            <tbody>
+                <tr class="info">
+                    <td>#</td>
+                    <td width = "6%"><strong>创建者</strong></td>
+                    <td width = "6%"><strong>作者</strong></td>                           
+                    <td width = "6%"><strong>评审</strong></td>
+                    <td width = "6%"><strong>发布者</strong></td>
+                    <td width = "15%"><strong>题目</strong></td> 
+                    <td width = "40%"><strong>摘要</strong></td>
+                    <td width = "10%"><strong>创建时间</strong></td>
+                    <td width = "10%"><strong>操作</strong></td>
+                </tr>
+                <?php
 
-    <table class="table table-hover">
-        <tbody>
-            <tr class="info">
-                <td>#</td>
-                <td width = "6%"><strong>创建者</strong></td>
-                <td width = "6%"><strong>作者</strong></td>                           
-                <td width = "6%"><strong>评审</strong></td>
-                <td width = "6%"><strong>发布者</strong></td>
-                <td width = "15%"><strong>题目</strong></td> 
-                <td width = "40%"><strong>摘要</strong></td>
-                <td width = "10%"><strong>创建时间</strong></td>
-                <td width = "10%"><strong>操作</strong></td>
-            </tr>
-            <?php
+                function get_abstract($dbc, $article_id, $segment_id) {
 
-            function get_abstract($dbc, $article_id, $segment_id) {
+                    $query = "SELECT content FROM segment where article_id=$article_id and id = $segment_id";
+                    $result = mysqli_query($dbc, $query) or die('Error querying database3.');
+                    $row = mysqli_fetch_array($result);
+                    return $row['content'];
+                }
 
-                $query = "SELECT content FROM segment where article_id=$article_id and id = $segment_id";
-                $result = mysqli_query($dbc, $query) or die('Error querying database3.');
-                $row = mysqli_fetch_array($result);
-                return $row['content'];
-            }
+                function getUsers($dbc, $article_id, $role) {
+                    $query = "SELECT * FROM `tcmks`.`authorship` as t1, `tcmks`.`users` as t2 where t1.author_id = t2.id and article_id = $article_id and role = '$role'";
 
-            function getUsers($dbc, $article_id, $role) {
-                $query = "SELECT * FROM `tcmks`.`authorship` as t1, `tcmks`.`users` as t2 where t1.author_id = t2.id and article_id = $article_id and role = '$role'";
+                    $result = mysqli_query($dbc, $query) or die('Error querying database3.');
+                    $s = "";
+                    while ($row = mysqli_fetch_array($result)) {
+                        $s .= $row['real_name'] . "&nbsp;";
+                    }
+                    //echo $query.$s;
+                    return $s;
+                }
 
-                $result = mysqli_query($dbc, $query) or die('Error querying database3.');
-                $s = "";
+                function delete_article($dbc, $article_id, $abstract) {
+                    $query = "DELETE FROM article WHERE id = '$article_id'";
+                    mysqli_query($dbc, $query);
+                    $query = "DELETE FROM authorship WHERE article_id = '$article_id'";
+                    mysqli_query($dbc, $query);
+                    $query = "DELETE FROM segment WHERE id = '$abstract'";
+                    mysqli_query($dbc, $query);
+                }
+
+                if (isset($_GET['delete'])) {
+                    delete_article($dbc, $_GET['delete'], $_GET['abstract']);
+                }
+
+                $query = "SELECT * FROM article";
+                $result = mysqli_query($dbc, $query) or die('Error querying database.');
+                //echo '<ul>';
+
+                $row_num = 1;
+                $color = true;
                 while ($row = mysqli_fetch_array($result)) {
-                    $s .= $row['real_name'] . "&nbsp;";
+
+                    if (!has_right_to_edit($dbc, $_SESSION['id'], $row[id]))
+                        continue;
+
+                    if ($color) {
+                        echo '<tr>';
+                    } else {
+                        echo '<tr class="info">';
+                    }
+                    $color = !$color;
+                    echo '<td>' . $row_num++ . '</td>';
+                    echo '<td>' . getUsers($dbc, $row[id], 'creator') . '</td>';
+                    echo '<td>' . getUsers($dbc, $row[id], 'author') . '</td>';
+                    echo '<td>' . getUsers($dbc, $row[id], 'reviewer') . '</td>';
+                    echo '<td>' . getUsers($dbc, $row[id], 'publisher') . '</td>';
+
+                    // $first_name = $row['first_name'];
+                    // $last_name = $row['last_name'];
+                    // $msg = "Dear $first_name $last_name,\n$text";
+
+
+                    echo '<td>' . $row['title'] . '</td>';
+                    //echo '<td>' . $row['abstract'] . '</td>';
+                    $row['segments'];
+                    $segments = explode('|', $row['segments']);
+
+                    echo '<td>' . get_abstract($dbc, $row['id'], $segments[1]) . '</td>';
+                    echo '<td>' . $row['create_time'] . '</td>';
+
+
+
+
+                    echo '<td><a class="btn" href="article.php?id=' . $row['id'] . '"><i class="icon-edit"></i></a>';
+
+
+                    echo '<a class="btn" href="' . $_SERVER['PHP_SELF'] . '?delete=' . $row['id'] . '&abstract=' . $segments[1] . '"><i class="icon-trash"></i></a></td></tr>';
                 }
-                //echo $query.$s;
-                return $s;
-            }
 
-            function delete_article($dbc, $article_id, $abstract) {
-                $query = "DELETE FROM article WHERE id = '$article_id'";
-                mysqli_query($dbc, $query);
-                $query = "DELETE FROM authorship WHERE article_id = '$article_id'";
-                mysqli_query($dbc, $query);
-                $query = "DELETE FROM segment WHERE id = '$abstract'";
-                mysqli_query($dbc, $query);            
-                
-            }
-
-            $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
-
-            if (isset($_GET['delete'])) {
-                delete_article($dbc, $_GET['delete'], $_GET['abstract']);
-            }
-
-            $query = "SELECT * FROM article";
-            $result = mysqli_query($dbc, $query) or die('Error querying database.');
-            //echo '<ul>';
-
-            $row_num = 1;
-            $color = true;
-            while ($row = mysqli_fetch_array($result)) {
-                if ($color) {
-                    echo '<tr>';
-                } else {
-                    echo '<tr class="info">';
-                }
-                $color = !$color;
-                echo '<td>' . $row_num++ . '</td>';
-                echo '<td>' . getUsers($dbc, $row[id], 'creator') . '</td>';
-                echo '<td>' . getUsers($dbc, $row[id], 'author') . '</td>';
-                echo '<td>' . getUsers($dbc, $row[id], 'reviewer') . '</td>';
-                echo '<td>' . getUsers($dbc, $row[id], 'publisher') . '</td>';
-
-                // $first_name = $row['first_name'];
-                // $last_name = $row['last_name'];
-                // $msg = "Dear $first_name $last_name,\n$text";
-
-
-                echo '<td>' . $row['title'] . '</td>';
-                //echo '<td>' . $row['abstract'] . '</td>';
-                $row['segments'];
-                $segments = explode('|', $row['segments']);
-
-                echo '<td>' . get_abstract($dbc, $row['id'], $segments[1]) . '</td>';
-                echo '<td>' . $row['create_time'] . '</td>';
-
-
-
-
-                echo '<td><a class="btn" href="article.php?id=' . $row['id'] . '"><i class="icon-edit"></i></a>';
-
-
-                echo '<a class="btn" href="' . $_SERVER['PHP_SELF'] . '?delete=' . $row['id'] . '&abstract='.$segments[1].'"><i class="icon-trash"></i></a></td></tr>';
-            }
-
-            mysqli_close($dbc);
-            ?>
-        </tbody>
-    </table>
+                mysqli_close($dbc);
+                ?>
+            </tbody>
+        </table>
+        <?php
+    } else {
+        ?>  
+        <div class = "alert">
+            <button type = "button" class = "close" data-dismiss = "alert">&times;
+            </button>
+            没有可编审的综述！您可以创建新的综述。
+        </div>
+        <?php
+    }
+    ?>
 </div>
 
 <!--
@@ -205,7 +222,7 @@ include_once ("./header.php");
                             if ($color) {
                                 echo '<tr>';
                             } else {
-                                echo '<tr class="info">';
+                                echo '<tr class = "info">';
                             }
                             $color = !$color;
                             echo '<td>' . $row_num++ . '</td>';
@@ -227,8 +244,8 @@ include_once ("./header.php");
 
 
 
-                            echo '<td><a class="btn" href="article.php?id=' . $row['id'] . '"><i class="icon-edit"></i></a>';
-                            echo '<a class="btn" href="create_article.html"><i class="icon-trash"></i></a></td></tr>';
+                            echo '<td><a class = "btn" href = "article.php?id=' . $row['id'] . '"><i class = "icon-edit"></i></a>';
+                            echo '<a class = "btn" href = "create_article.html"><i class = "icon-trash"></i></a></td></tr>';
                         }
 
                         mysqli_close($dbc);
@@ -269,24 +286,24 @@ include_once ("./header.php");
                             if ($color) {
                                 echo '<tr>';
                             } else {
-                                echo '<tr class="info">';
+                                echo '<tr class = "info">';
                             }
                             $color = !$color;
                             echo '<td width = "3%">' . $row_num++ . '</td>';
                             echo '<td width = "15%">' . $row['authors'] . '</td>';
 
                             echo '<td width = "30%">' . $row['title'] . '</td>';
-                            echo '<td width = "25%">' . $row['journal'] . $row['year'] . ',' . $row['pages'] . ',' . $row['publisher'] . '</td>';
+                            echo '<td width = "25%">' . $row['journal'] . $row['year'] . ', ' . $row['pages'] . ', ' . $row['publisher'] . '</td>';
                             echo '<td width = "10%">' . $row['create_time'] . '</td>';
                             $file_name = iconv('utf-8', 'gb2312', $row['file']);
                             echo '<td width = "15%">';
-                            echo '<a class="btn" href="upload_file.php"><i class="icon-edit"></i></a>';
+                            echo '<a class = "btn" href = "upload_file.php"><i class = "icon-edit"></i></a>';
 
                             if (is_file(GW_UPLOADPATH . $file_name)) {
-                                echo '<a class="btn" href="' . GW_UPLOADPATH . $row['file'] . '"><i class="icon-download-alt"></i></a>';
+                                echo '<a class = "btn" href = "' . GW_UPLOADPATH . $row['file'] . '"><i class = "icon-download-alt"></i></a>';
                             }
 
-                            echo '<a class="btn" href="create_article.html"><i class="icon-trash"></i></a></td></tr>';
+                            echo '<a class = "btn" href = "create_article.html"><i class = "icon-trash"></i></a></td></tr>';
                         }
                         ?>
                     </tbody>
