@@ -20,7 +20,7 @@ function get_file_by_id($dbc, $image_id) {
 
 function delete_image($dbc, $image_id) {
     $file = IMG_UPLOADPATH . get_file_by_id($dbc, $image_id);
-    
+
     unlink($file);
     $query = "DELETE FROM images WHERE id = '$image_id'";
     mysqli_query($dbc, $query) or die('Error querying database.');
@@ -76,14 +76,22 @@ function getMaxImageId($dbc) {
     return $row[id];
 }
 
-function upload_image($dbc, $name, $score, $discription) {
+function init_image($dbc, $user_id) {
+    $image_id = getMaxImageId($dbc) + 1;
+
+    $query = "INSERT INTO images (id, date, user_id) VALUES ('$image_id', NOW(), '$user_id')";
+    echo $query;
+    mysqli_query($dbc, $query);
+    return $image_id;
+}
+
+function upload_image($dbc, $name, $subject, $discription) {
     $screenshot = $_FILES['screenshot']['name'];
     $screenshot_type = $_FILES['screenshot']['type'];
     $screenshot_size = $_FILES['screenshot']['size'];
-    echo pathinfo($screenshot, PATHINFO_EXTENSION);
+    $user_id = $_SESSION['id'];
 
-
-    if (!empty($name) && !empty($score) && !empty($screenshot)) {
+    if (!empty($name) && !empty($subject) && !empty($screenshot)) {
         if ((($screenshot_type == 'image/gif') || ($screenshot_type == 'image/jpeg') || ($screenshot_type == 'image/pjpeg') || ($screenshot_type == 'image/png')) && ($screenshot_size > 0) && ($screenshot_size <= IMG_MAXFILESIZE)) {
             if ($_FILES['screenshot']['error'] == 0) {
                 // Move the file to the target upload folder
@@ -94,12 +102,12 @@ function upload_image($dbc, $name, $score, $discription) {
                 if (move_uploaded_file($_FILES['screenshot']['tmp_name'], $target)) {
                     // Connect to the database
                     // Write the data to the database
-                    $query = "INSERT INTO images VALUES ('$image_id', '$name', '$new_file_name', '$score', NOW(), '$discription', '1')";
-
+                    $query = "INSERT INTO images VALUES ('$image_id', '$name', '$new_file_name', '$subject', NOW(), '$discription', '1', '$user_id')";
+                    echo $query;
                     mysqli_query($dbc, $query);
-                  
+
                     $name = "";
-                    $score = "";
+                    $subject = "";
                     $screenshot = "";
                 } else {
                     echo '<p class="error">Sorry, there was a problem uploading your screen shot image.</p>';
@@ -112,9 +120,75 @@ function upload_image($dbc, $name, $score, $discription) {
         // Try to delete the temporary screen shot image file
         @unlink($_FILES['screenshot']['tmp_name']);
     } else {
-        echo '<p class="error">Please enter all of the information to add your high score.</p>';
+        echo '<p class="error">请录入完整的信息。</p>';
     }
     return $image_id;
+}
+
+function update_image($dbc, $image_id, $name, $subject, $description){
+    $image_file = upload_image_file($image_id); 
+               
+    
+    if ('' != $name){
+        $query = "update images set name = '$name' where id = '$image_id'";
+        mysqli_query($dbc, $query);
+    }
+    
+    if ('' != $image_file){
+        $query = "update images set file = '$image_file' where id = '$image_id'";
+        mysqli_query($dbc, $query);
+        
+    }
+    
+    if ('' != $subject){
+        $query = "update images set subject='$subject' where id = '$image_id'";
+        mysqli_query($dbc, $query);
+        
+    }
+    
+    if ('' != $description){
+        $query = "update images set description = '$description' where id = '$image_id'";
+        mysqli_query($dbc, $query);
+       
+    }
+    
+   
+    
+    
+
+    //$query = "INSERT INTO resource VALUES ('$file_id', '$title', '$file_name', '$creator', '$journal', '$pages', '$year', '$publisher',NULL)";
+    
+    return true;
+}
+
+
+function upload_image_file($image_id) {
+
+    if (is_uploaded_file($_FILES['screenshot']['tmp_name'])) {
+        $screenshot = $_FILES['screenshot']['name'];
+        $screenshot_type = $_FILES['screenshot']['type'];
+        $screenshot_size = $_FILES['screenshot']['size'];
+
+        if ((($screenshot_type == 'image/gif') || ($screenshot_type == 'image/jpeg') || ($screenshot_type == 'image/pjpeg') || ($screenshot_type == 'image/png')) && ($screenshot_size > 0) && ($screenshot_size <= IMG_MAXFILESIZE)) {
+            if ($_FILES['screenshot']['error'] == 0) {
+                $new_file_name = $image_id . '.' . pathinfo($screenshot, PATHINFO_EXTENSION);
+                $target = IMG_UPLOADPATH . $new_file_name;
+                if (file_exists(GW_UPLOADPATH . $new_file_name)) {
+                    unlink(GW_UPLOADPATH . $new_file_name);
+                }
+                if (move_uploaded_file($_FILES['screenshot']['tmp_name'], $target)) {
+                    return $new_file_name;
+                } else {
+                    echo '<p class="error">Sorry, there was a problem uploading your screen shot image.</p>';
+                }
+            }
+        } else {
+            echo '<p class="error">The screen shot must be a GIF, JPEG, or PNG image file no greater than ' . (GW_MAXFILESIZE / 1024) . ' KB in size.</p>';
+        }
+
+        // Try to delete the temporary screen shot image file
+        @unlink($_FILES['screenshot']['tmp_name']);
+    }
 }
 ?>
  

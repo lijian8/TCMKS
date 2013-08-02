@@ -1,8 +1,6 @@
 <?php
 include_once ("./header.php");
 include_once ("./rights.php");
-
-$dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
 ?>
 <p></p>
 <!-- Subhead
@@ -146,7 +144,6 @@ $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error conn
                     echo '<a class="btn" href="' . $_SERVER['PHP_SELF'] . '?delete=' . $row['id'] . '&abstract=' . $segments[1] . '"><i class="icon-trash"></i></a></td></tr>';
                 }
 
-                mysqli_close($dbc);
                 ?>
             </tbody>
         </table>

@@ -8,10 +8,12 @@ function get_file_by_id($dbc, $id) {
     }
 }
 
-function init_resource($dbc){
+function init_resource($dbc, $type){ 
     $file_id = getMaxImageId($dbc) + 1;
-    $query = "INSERT INTO resource (id, create_time) VALUES ('$file_id',NOW())";     
-    echo $query;
+    $user_id = $_SESSION['id'];
+    
+    $query = "INSERT INTO resource (id, create_time, user_id, type) VALUES ('$file_id',NOW(), '$user_id', '$type')";     
+    //echo $query;
     mysqli_query($dbc, $query);  
     return $file_id;
 }

@@ -1,39 +1,7 @@
 <?php
 include_once ("./header.php");
+include_once ("./article_helper.php");
 require_once('appvars.php');
-require_once('connectvars.php');
-
-function get_article_info($dbc, $id) {
-    $query = "SELECT * FROM article where id = $id";
-    $result = mysqli_query($dbc, $query) or die('Error querying database.');
-    if ($row = mysqli_fetch_array($result)) {
-        $article_info[title] = $row[title];
-        $article_info[create_time] = $row[create_time];
-        $article_info[creators] = get_article_creator($dbc, $id);
-        return $article_info;
-    }
-
-    
-}
-
-function get_article_creator($dbc, $id) {
-    $query = "SELECT * FROM authorship a, users u where a.author_id = u.id and a.role = 'creator' and a.article_id = '$id'";
-    $result = mysqli_query($dbc, $query) or die('Error querying database.');
-
-    $first = true;
-
-    while ($row = mysqli_fetch_array($result)) {
-        $creator = "<a href = \"user.php?id=$row[author_id]\">$row[real_name]</a>";
-        if ($first) {
-            $creators .= $creator;
-            $first = false;
-        } else {
-            $creators .= ',' . $creator;
-        }
-    }
-
-    return $creators;
-}
 
 if (isset($_POST['submit'])) {
     $keywords = $_POST['keywords'];
@@ -53,29 +21,36 @@ if (isset($_POST['submit'])) {
         <div class="tab-content">
             <div class="tab-pane active" id="tab1">
                 <?php
-                $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME) or die('Error connecting to MySQL server.');
-
                 $query = "SELECT * FROM segment where title like '%$keywords%' or content like '%$keywords%' ";
-//echo $query;
                 $result = mysqli_query($dbc, $query) or die('Error querying database.');
-
-
-
                 while ($row = mysqli_fetch_array($result)) {
-                    
-                    $article_id = $row[article_id];
-                    $article_info = get_article_info($dbc, $article_id);
+
                     $segment_title = $row[title];
                     $segment_id = $row[id];
                     $segment_content = mb_substr($row[content], 0, 100, 'utf-8');
-                    
 
-                    echo "<h4><a href = \"article.php?id=$article_id\">" . $article_info[title] . "</a>&nbsp;/&nbsp;<a href = \"article.php?id=$article_id#s$segment_id\">" . $segment_title . "</a></h4>";
-                    echo "$article_info[creators]创建于$article_info[create_time]";
+                    $articles = get_articles_by_seg($dbc, $segment_id);
+
+                    echo "<h4>";
+                    $first = true;
+                    foreach ($articles as $article_id) {
+                        if ($first) {
+                            $first = false;
+                        } else {
+                            echo ',&nbsp;';
+                        }
+                        echo get_article_link($dbc, $article_id);
+                    }
+
+                    if (!$first) {
+                        echo "&nbsp;/&nbsp;";
+                        echo "<a href = \"article.php?id=$article_id#s$segment_id\">" . $segment_title . "</a>";                    
+                    } else {
+                        echo "<a href = \"segment.php?id=$segment_id\">" . $segment_title . "</a>";                        
+                    }
+                    echo "</h4>";
                     echo "<p>" . $segment_content . "...</p>";
                 }
-
-                mysqli_close($dbc);
                 ?>
 
             </div>

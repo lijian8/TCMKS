@@ -1,11 +1,7 @@
 <?php
 include_once ("./header.php");
 include_once ("./resource_helper.php");
-
 require_once('appvars.php');
-require_once('connectvars.php');
-
-$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
 if (isset($_GET['deleted_file'])) {
 
@@ -30,7 +26,16 @@ if (isset($_GET['deleted_file'])) {
                 <a class="brand" href="#">文献管理</a>
                 <div class="nav-collapse collapse navbar-responsive-collapse">
                     <ul class="nav">
-                        <li><a  href="upload_file.php?action=create">上传文献</a></li>
+                        
+                         <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">录入文献 <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="upload_file.php?action=create&type=期刊文献">录入期刊文献</a></li>
+                                <li><a href="upload_file.php?action=create&type=会议文献">录入会议文献</a></li>
+                                <li><a href="upload_file.php?action=create&type=指南">录入指南</a></li>
+                              
+                            </ul>
+                        </li>
 
                         <li><a href="#">删除文献</a></li>
                         <li class="dropdown">
@@ -65,9 +70,11 @@ if (isset($_GET['deleted_file'])) {
         <tbody>
             <tr class="info">
                 <td>#</td>
-                <td width = "8%"><strong>作者</strong></td>
-                <td width = "8%"><strong>题目</strong></td>
+                <td width = "8%"><strong>创建者</strong></td>
+                <td width = "8%"><strong>题名</strong></td>
+                <td width = "8%"><strong>类型</strong></td>
                 <td width = "8%"><strong>出处</strong></td>
+                <td width = "8%"><strong>主题</strong></td>
                 <td width = "15%"><strong>上传时间</strong></td> 
                 <td width = "40%"><strong>操作</strong></td>
 
@@ -87,10 +94,14 @@ if (isset($_GET['deleted_file'])) {
                 }
                 $color = !$color;
                 echo '<td width = "3%">' . $row_num++ . '</td>';
-                echo '<td width = "15%">' . $row['authors'] . '</td>';
+                echo '<td width = "15%">' . $row['creator'] . '</td>';
 
-                echo '<td width = "30%">' . $row['title'] . '</td>';
-                echo '<td width = "25%">' . $row['journal'] . $row['year'] . ',' . $row['pages'] . ',' . $row['publisher'] . '</td>';
+                echo '<td width = "20%">' . $row['title'] . '</td>';
+                echo '<td width = "5%">' . $row['type']  . '</td>';
+             
+                echo '<td width = "20%">' . $row['source']  . '</td>';
+                echo '<td width = "10%">' . $row['subject']  . '</td>';
+             
                 echo '<td width = "10%">' . $row['create_time'] . '</td>';
                 $file_name = iconv('utf-8', 'gb2312', $row['file']);
                 echo '<td width = "15%">';

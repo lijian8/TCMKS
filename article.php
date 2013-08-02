@@ -1,6 +1,7 @@
 <?php
 require_once('appvars.php');
-require_once('connectvars.php');
+
+//require_once('connectvars.php');
 
 function render_images($dbc, $id, $segment_id, $all_images) {
 
@@ -110,8 +111,7 @@ function getUsers($dbc, $article_id, $role) {
         $s .= $row['real_name'];
     }
 
-    //echo $query . $s;
-    return $s;
+    return ($s != '') ? $s : '待定';
 }
 
 function set_image_no($dbc, $segments) {
@@ -150,6 +150,7 @@ include_once ("./header.php");
 include_once ("./pop_up.php");
 include_once ("./rights.php");
 include_once ("./image_helper.php");
+include_once ("./article_helper.php");
 
 
 //include_once ("./number_sign_processing.php");
@@ -160,7 +161,7 @@ $biblio = array();
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
+    //$dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
 
     $has_right_to_edit = has_right_to_edit($dbc, $_SESSION['id'], $id);
 //$has_right_to_edit = 1;
@@ -177,17 +178,11 @@ if (isset($_GET['id'])) {
     }
 
 
+    //$title = get_article_title($dbc, $id);
+    $article_info = get_article_info($dbc, $id);
 
-    $q1 = "SELECT * FROM article WHERE id = '$id'";
 
-    $r1 = mysqli_query($dbc, $q1) or die('Error querying database1.');
-    $row1 = mysqli_fetch_array($r1);
-    $title = $row1['title'];
-    //$abstract = $row1['abstract'];
-    //$segment_id = $row1['first'];
-
-    $segments = explode('|', $row1[segments]);
-    //print_r($segments);
+    $segments = get_segments($dbc, $id);
 
 
     $images = set_image_no($dbc, $segments);
@@ -202,77 +197,74 @@ if (isset($_GET['id'])) {
             <div class="span3  bs-docs-sidebar">
                 <ul class="nav nav-list bs-docs-sidenav">
 
-    <?php
-    //$segment_id = $row1['first'];
+                    <?php
+                    $is_first_segment = true;
+                    //print_r($segments);
+                    //$i = 0;
+                    //while ($segment_id != 0) {
+                    foreach ($segments as $segment_id) {
 
+                        if ('' != $segment_id) {
+                            // echo 'echo:'.$segment_id;
 
-    $is_first_segment = true;
-    //print_r($segments);
-    //$i = 0;
-    //while ($segment_id != 0) {
-    foreach ($segments as $segment_id) {
+                            $q2 = "SELECT * FROM segment WHERE id = '$segment_id'";
+                            $r2 = mysqli_query($dbc, $q2) or die('Error querying database2.');
+                            $row2 = mysqli_fetch_array($r2);
 
-        if ('' != $segment_id) {
-            // echo 'echo:'.$segment_id;
+                            $c_id = $row2['id'];
+                            $c_title = $row2['title'];
+                            //echo $c_title;
+                            $c_rank = $row2['rank'];
 
-            $q2 = "SELECT * FROM segment WHERE id = '$segment_id'";
-            $r2 = mysqli_query($dbc, $q2) or die('Error querying database2.');
-            $row2 = mysqli_fetch_array($r2);
+                            if ($c_rank == 1) {
+                                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
+                                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
 
-            $c_id = $row2['id'];
-            $c_title = $row2['title'];
-            //echo $c_title;
-            $c_rank = $row2['rank'];
+                                //'<h2>' . $c_title . '</h2>';
+                            } else {
+                                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
+                                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
 
-            if ($c_rank == 1) {
-                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
-                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
+                                //echo '<h3>' . $c_title . '</h3>';
+                            }
+                            //$i++;
+                            //$segment_id = $row2['next'];
+                        }
+                    }
 
-                //'<h2>' . $c_title . '</h2>';
-            } else {
-                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
-                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
-
-                //echo '<h3>' . $c_title . '</h3>';
-            }
-            //$i++;
-            //$segment_id = $row2['next'];
-        }
-    }
-
-    //mysqli_close($dbc);
-    ?>
+                    //mysqli_close($dbc);
+                    ?>
                 </ul>
             </div>
 
             <div class="span9">
                 <div class="well">
-                    <h1><font face="微软雅黑" ><?php echo $title; ?> </font></h1>
+                    <h1><font face="微软雅黑" ><?php echo $article_info[title]; ?> </font></h1>
                     <font size ="2">
                     <p></p>
                     <p>&nbsp;&nbsp;<strong>创建者:&nbsp;</strong>
-    <?php echo getUsers($dbc, $id, 'creator'); ?>;&nbsp;&nbsp;
+                        <?php echo getUsers($dbc, $id, 'creator'); ?>;&nbsp;&nbsp;
                         <strong>作者:&nbsp;</strong>
                         <?php echo getUsers($dbc, $id, 'author'); ?>;&nbsp;&nbsp;     
                         <strong>评审:&nbsp;</strong>
                         <?php echo getUsers($dbc, $id, 'reviewer'); ?>;&nbsp;&nbsp;     
                         <strong>发布者:&nbsp;</strong>
                         <?php echo getUsers($dbc, $id, 'publisher'); ?>.     
-                    <p>&nbsp;&nbsp;<strong>创建时间：</strong>06/07/2013 ;&nbsp;&nbsp; <strong>发布时间：</strong>06/07/2013</font></p>            
+                    <p>&nbsp;&nbsp;<strong>创建时间：</strong><?php echo $article_info[create_time]; ?> ;&nbsp;&nbsp; <strong>发布时间：</strong>06/07/2013</font></p>            
 
                     </font>
                     <p>
-    <?php
-    if ($has_right_to_edit) {
-        ?>        
-                            <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-th-list icon-white"></i>&nbsp;编辑元信息</a>
-                            <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-edit icon-white"></i>&nbsp;编辑全文</a>
-                            <a class="btn btn-primary" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-trash icon-white"></i>&nbsp;删除本文</a> 
+                        <?php
+                        if ($has_right_to_edit) {
+                            echo '<a class="btn btn-primary" href="article_metadata.php?id=' . $id . '"><i class="icon-th-list icon-white"></i>&nbsp;编辑元信息</a>';
+                            ?>        
+                            <a class="btn btn-primary" href="#"><i class="icon-edit icon-white"></i>&nbsp;编辑全文</a>
+                            <a class="btn btn-primary" href="#"><i class="icon-trash icon-white"></i>&nbsp;删除本文</a> 
         <?php
     }
     ?>
-                        <a class="btn btn-warning" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-download-alt icon-white"></i>&nbsp;下载全文</a>            
-                        <a class="btn btn-warning" href="article.php?id='1'&deleted_segment_id='2'"><i class="icon-home icon-white"></i>&nbsp;返回主页</a>            
+                        <a class="btn btn-warning" href="#"><i class="icon-download-alt icon-white"></i>&nbsp;下载全文</a>            
+                        <a class="btn btn-warning" href="#"><i class="icon-home icon-white"></i>&nbsp;返回主页</a>            
                     </p>
                 </div>
 
@@ -280,10 +272,6 @@ if (isset($_GET['id'])) {
 
 
     <?php
-    //to do: authors
-    //echo '<h2>摘要</h2>' . $abstract;
-    //echo '<HR color=#987cb9 size=1>';
-    //$segment_id = $row1['first'];
     $is_first_segment = true;
     $j = 0;
     //while ($segment_id != 0) {
@@ -417,7 +405,7 @@ if (isset($_GET['id'])) {
                 //$link = '<a href="javascript:invokePopupService(\'' . $row['id'] . '\',\'resource\');">[' . $row['id'] . ']</a>';
                 $link = '<a href="javascript:invokePopupService(\'' . $row['id'] . '\',\'resource\');">' . $row['title'] . '</a>';
 
-                echo $row['authors'] . '.' . $link . '.' . $row['journal'] . $row['year'] . ',' . $row['pages'] . ',' . $row['publisher'] . '.';
+                echo $row['creator'] . '.' . $link . '.' . $row['source'] . '.' . $row['publisher'];
                 $file_name = iconv('utf-8', 'gb2312', $row['file']);
 
                 if (is_file(GW_UPLOADPATH . $file_name)) {
@@ -431,13 +419,12 @@ if (isset($_GET['id'])) {
         echo '</section>';
     }
     //print_r($biblio);
-
-    mysqli_close($dbc);
+    //mysqli_close($dbc);
 }
 ?>
         </div>
 
     </div>
-<?php
-include_once ("./foot.php");
-?>
+            <?php
+            include_once ("./foot.php");
+            ?>

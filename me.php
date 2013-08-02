@@ -2,9 +2,6 @@
 include_once ("./header.php");
 
 require_once('appvars.php');
-require_once('connectvars.php');
-
-$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
 
 if (isset($_POST['submit'])) {
@@ -84,3 +81,8 @@ if (isset($_POST['submit'])) {
 
     </div>
 </div>
+
+
+<?php
+include_once ("./foot.php");
+?>

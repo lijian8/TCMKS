@@ -1,4 +1,9 @@
 <?php
+
+require_once('connectvars.php');
+
+$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME) or die('Error connecting to MySQL server.');
+
 session_name('tzLogin');
 // Starting the session
 session_start();
@@ -101,7 +106,7 @@ and open the template in the editor.
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">管理<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="article_manager.php">文献</a></li>
+                                    <li><a href="resource_manager.php">文献</a></li>
                                     <li><a href="image_manager.php">图片</a></li> 
                                     <li><a href="me.php">我的信息</a></li> 
                                 </ul>

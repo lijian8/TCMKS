@@ -55,7 +55,7 @@ if (isset($_GET[insert_image_id])) {
 <div class="container">
     <div class="row-fluid">
         <?php
-        $query = "SELECT * FROM `tcmks`.`images` WHERE name like '%$keywords%' or score like '%$keywords%' or description like '%$keywords%'";
+        $query = "SELECT * FROM `tcmks`.`images` WHERE name like '%$keywords%' or subject like '%$keywords%' or description like '%$keywords%'";
         //echo $query;
         $result = mysqli_query($dbc, $query) or die('Error querying database.');
         $row = mysqli_fetch_array($result);

@@ -1,16 +1,9 @@
 <?php
+include_once ("./header.php");
+include_once ("./users_helper.php");
 
-function renderUserList() {
-    $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
-    $query = "select * from users";
-    $result = mysqli_query($dbc, $query) or die('Error querying database3.');
 
-    while ($row = mysqli_fetch_array($result)) {
-        echo '<option value ="' . $row['id'] . '">' . $row['real_name'] . '</option>';
-    }
-}
-
-function get_id($dbc) {
+function get_new_id($dbc) {
     $query = "SELECT MAX(id) as id FROM article";
     $result = mysqli_query($dbc, $query) or die('Error querying database3.');
     $row = mysqli_fetch_array($result);
@@ -28,15 +21,14 @@ function insert_abstract($dbc, $abstract, $article_id) {
     return $id;
 }
 
-include_once ("./header.php");
+
 if (isset($_POST['submit'])) {
-    $dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
     $title = $_POST['title'];
     $abstract = $_POST['abstract'];
 
 
 
-    $id = get_id($dbc);
+    $id = get_new_id($dbc);
 
     $query = "INSERT INTO article (id, title) " .
             "VALUES ('$id','$title')";
@@ -55,45 +47,9 @@ if (isset($_POST['submit'])) {
     mysqli_query($dbc, $query) or die('Error querying database:');
 
 
-    $authors = $_POST['authors'];
-    if (empty($authors)) {
-        echo("您未指定作者！");
-    } else {
-        $N = count($authors);
-        for ($i = 0; $i < $N; $i++) {
-            $query = "INSERT INTO authorship (article_id, author_id, role) " .
-                    "VALUES ('$id','$authors[$i]', 'author')";
-            //echo $query;
-            mysqli_query($dbc, $query) or die('Error querying database:');
-        }
-    }
-
-    $reviewers = $_POST['reviewers'];
-    if (empty($reviewers)) {
-        echo("您未指定评审！");
-    } else {
-        $N = count($reviewers);
-        for ($i = 0; $i < $N; $i++) {
-            $query = "INSERT INTO authorship (article_id, author_id, role) " .
-                    "VALUES ('$id','$reviewers[$i]', 'reviewer')";
-            //echo $query;
-            mysqli_query($dbc, $query) or die('Error querying database:');
-        }
-    }
+   
 
 
-    $publishers = $_POST['publishers'];
-    if (empty($publishers)) {
-        echo("您未指定评审！");
-    } else {
-        $N = count($publishers);
-        for ($i = 0; $i < $N; $i++) {
-            $query = "INSERT INTO authorship (article_id, author_id, role) " .
-                    "VALUES ('$id','$publishers[$i]', 'publisher')";
-            //echo $query;
-            mysqli_query($dbc, $query) or die('Error querying database:');
-        }
-    }
 
     echo '<div class="alert alert-success">';
     echo '<button type="button" class="close" data-dismiss="alert">&times;</button>';
@@ -109,7 +65,7 @@ if (isset($_POST['submit'])) {
     <div class="span2">
     </div>  
     <div class="span8">
-        <form method="post" class="form-horizontal" action="create_article.php">
+        <form method="post" class="form-horizontal" action="<?php echo $_SERVER['PHP_SELF']; ?>">
             <legend>请填写综述文献的基本信息：</legend>
             <div class="control-group">
                 <label class="control-label" for="title">标题:</label>
@@ -122,34 +78,7 @@ if (isset($_POST['submit'])) {
                 <div class="controls">
                     <input class="input-block-level" type="text" id="creator" name="creator" value="<?php echo $_SESSION['real_name'] ? $_SESSION['real_name'] : ''; ?>">
                 </div>
-            </div>
-            <div class="control-group">
-                <!-- Select Multiple -->
-                <label class="control-label" for="authors[]">作者:</label>
-                <div class="controls">
-                    <select id="authors[]" name ="authors[]" class="input-block-level" multiple="multiple">
-                        <?php renderUserList(); ?>                        
-                    </select>
-                </div>
-            </div>
-            <div class="control-group">
-                <!-- Select Multiple -->
-                <label class="control-label" for="reviewers[]">评审:</label>
-                <div class="controls">
-                    <select id="reviewers[]" name ="reviewers[]" class="input-block-level" multiple="multiple">
-                        <?php renderUserList(); ?>                        
-                    </select>
-                </div>
-            </div>
-            <div class="control-group">
-                <!-- Select Multiple -->
-                <label class="control-label" for="publishers[]">发布者:</label>
-                <div class="controls">
-                    <select id="publishers[]" name ="publishers[]" class="input-block-level" multiple="multiple">
-                        <?php renderUserList(); ?>                        
-                    </select>
-                </div>
-            </div>
+            </div>            
             <div class="control-group">
                 <label class="control-label" for="abstract">摘要:</label>
                 <div class="controls">

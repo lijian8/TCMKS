@@ -35,7 +35,7 @@ include_once ("./image_helper.php");
         $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
         $name = $_POST['name'];
-        $score = $_POST['score'];
+        $subject = $_POST['subject'];
         $discription = $_POST['discription'];
         $segment_id = $_POST['segment_id'];
         $article_id = $_POST['article_id'];
@@ -46,53 +46,10 @@ include_once ("./image_helper.php");
             $images = array();
         }
         
-        $image_id = upload_image($dbc, $name, $score, $discription);
+        $image_id = upload_image($dbc, $name, $subject, $discription);
         
         insert_into_segment($dbc, $segment_id, $image_id);
         array_push($images, $image_id);
-
-        /*
-        $screenshot = $_FILES['screenshot']['name'];
-        $screenshot_type = $_FILES['screenshot']['type'];
-        $screenshot_size = $_FILES['screenshot']['size'];
-
-        if (!empty($name) && !empty($score) && !empty($screenshot)) {
-            if ((($screenshot_type == 'image/gif') || ($screenshot_type == 'image/jpeg') || ($screenshot_type == 'image/pjpeg') || ($screenshot_type == 'image/png')) && ($screenshot_size > 0) && ($screenshot_size <= IMG_MAXFILESIZE)) {
-                if ($_FILES['screenshot']['error'] == 0) {
-                    // Move the file to the target upload folder
-                    $target = IMG_UPLOADPATH . $screenshot;
-                    if (move_uploaded_file($_FILES['screenshot']['tmp_name'], $target)) {
-                        // Connect to the database
-                        // Write the data to the database
-                        $query = "INSERT INTO images VALUES (0,  '$name', '$screenshot', '$score', NOW(),'$discription','$segment_id')";
-                        //echo $query;
-                        mysqli_query($dbc, $query);
-                        $image_id = getMaxImageId($dbc);
-                        insert_into_segment($dbc, $segment_id, $image_id);
-                        array_push($images, $image_id);
-
-
-                        $name = "";
-                        $score = "";
-                        $screenshot = "";
-                    } else {
-                        echo '<p class="error">Sorry, there was a problem uploading your screen shot image.</p>';
-                    }
-                }
-            } else {
-                echo '<p class="error">The screen shot must be a GIF, JPEG, or PNG image file no greater than ' . (GW_MAXFILESIZE / 1024) . ' KB in size.</p>';
-            }
-
-            // Try to delete the temporary screen shot image file
-            @unlink($_FILES['screenshot']['tmp_name']);
-        } else {
-            echo '<p class="error">Please enter all of the information to add your high score.</p>';
-        }
-
-        /*
-          foreach ($images as $image){
-          echo "Select image:". $image;
-          } */
 
         if (!empty($images)) {
             echo '<div class = "span6">';
@@ -113,7 +70,7 @@ include_once ("./image_helper.php");
             }
             echo '</div >';
         }
-        mysqli_close($dbc);
+       
     }
     ?>
 
@@ -146,9 +103,9 @@ include_once ("./image_helper.php");
                 </div>
             </div>
             <div class="control-group" >
-                <label class="control-label" for="score">标签:</label>
+                <label class="control-label" for="subject">标签:</label>
                 <div class="controls" >
-                    <input class="input-xlarge" type="text" placeholder="请输入图片标签" id="score" name="score" value="<?php if (!empty($score)) echo $score; ?>" />
+                    <input class="input-xlarge" type="text" placeholder="请输入图片标签" id="subject" name="subject" value="<?php if (!empty($subject)) echo $subject; ?>" />
                 </div>
             </div>
             <div class="control-group" >

@@ -3,7 +3,7 @@ include_once ("./header.php");
 include_once ("./resource_helper.php");
 echo '<p></p>';
 require_once('appvars.php');
-require_once('connectvars.php');
+//require_once('connectvars.php');
 
 function getMaxImageId($dbc) {
     $query = "SELECT MAX(id) AS id FROM resource";
@@ -30,23 +30,25 @@ function upload_file($file_id) {
     }
 }
 
-$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+//$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
 if (isset($_GET['action'])) {
     if ($_GET['action'] == 'create') {
-        echo 'create new resource!';
-        $file_id = init_resource($dbc);
+        //echo 'create new resource!';
+        $type = $_GET['type'];
+        $file_id = init_resource($dbc, $type);
     } elseif ($_GET['action'] == 'update') {
         $file_id = $_GET['file_id'];
         $query = "SELECT * FROM resource WHERE id = '$file_id'";
         $result = mysqli_query($dbc, $query) or die('Error querying database.');
         if ($row = mysqli_fetch_array($result)) {
             $title = $row['title'];
-            $authors = $row['authors'];
-            $journal = $row['journal'];
-            $pages = $row['pages'];
-            $year = $row['year'];
+            $creator = $row['creator'];
             $publisher = $row['publisher'];
+            $description = $row['description'];
+            $type = $row['type'];
+            $subject = $row['subject'];
+            
         }
     }
 } elseif (isset($_POST['submit'])) {
@@ -59,16 +61,41 @@ if (isset($_GET['action'])) {
     }
     echo $file_name;
     $title = $_POST['title'];
-    $authors = $_POST['authors'];
-    $journal = $_POST['journal'];
-    $pages = $_POST['pages'];
-    $year = $_POST['year'];
+    $creator = $_POST['creator'];
     $publisher = $_POST['publisher'];
-
-    $query = "update resource set title = '$title', file = '$file_name', authors='$authors', journal = '$journal', pages = '$pages', year = '$year', publisher = '$publisher' where id = '$file_id'";
+    $description = $_POST['description'];
+    $type = $_POST['type'];
+    $subject = $_POST['subject'];
+            
+    $query = "update resource set ";
+    if ('' != $title){
+        $query .= "title = '$title',"; 
+    }
+    
+    if ('' != $file_name){
+        $query .= "file = '$file_name',"; 
+    }
+    
+    if ('' != $creator){
+        $query .= "creator='$creator',"; 
+    }
+    
+    if ('' != $description){
+        $query .= "description = '$description',"; 
+    }
+    
+    if ('' != $publisher){
+        $query .= "publisher = '$publisher', "; 
+    }
+    
+    if ('' != $subject){
+        $query .= "subject = '$subject' "; 
+    }
+    
+    $query .= " where id = '$file_id'";
     echo $query;
 
-    //$query = "INSERT INTO resource VALUES ('$file_id', '$title', '$file_name', '$authors', '$journal', '$pages', '$year', '$publisher',NULL)";
+    //$query = "INSERT INTO resource VALUES ('$file_id', '$title', '$file_name', '$creator', '$journal', '$pages', '$year', '$publisher',NULL)";
     mysqli_query($dbc, $query);
 
     echo '<div class="alert alert-success">';
@@ -77,6 +104,7 @@ if (isset($_GET['action'])) {
     echo '文献信息如下：';
     echo '<dl class="dl-horizontal">';
     echo "<dt>文献题目:</dt><dd>" . $title . '</dd>';
+    echo "<dt>文献类型:</dt><dd>" . $type . '</dd>';    
     echo "<dt>文件名称:</dt><dd>" . $file_name . "</dd>";
     echo "<dt>文件类型:</dt><dd>" . $_FILES["file"]["type"] . "</dd>";
     echo "<dt>文件尺寸:<dt><dd>" . ($_FILES["file"]["size"] / 1024) . "Kb</dd>";
@@ -91,55 +119,23 @@ if (isset($_GET['action'])) {
     <div class="span8">
         <form action="upload_file.php" method="post" class="form-horizontal"
               enctype="multipart/form-data">
-            <legend>请上传文献：</legend>
+            <legend>请录入<?php  echo isset($type) ? $type : '文献'; ?>的信息：</legend>
             <input  type="hidden" id="file_id" name="file_id" value = "<?php if (isset($file_id)) echo $file_id; ?>" >
+            <input  type="hidden" id="type" name="type" value = "<?php if (isset($type)) echo $type; ?>" >
 
             <div class="control-group">
-                <label class="control-label" for="title">题目:</label>
+                <label class="control-label" for="title">题名:</label>
                 <div class="controls">
                     <input class="span12" type="text" id="title" name="title" value = "<?php if (isset($title)) echo $title; ?>" placeholder="请输入文献的题目">
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label" for="authors">作者:</label>
+                <label class="control-label" for="creator">创建者:</label>
                 <div class="controls">
-                    <input class="span12" type="text" id="authors" name="authors" value = "<?php if (isset($authors)) echo $authors; ?>" placeholder="请输入作者">
+                    <input class="span12" type="text" id="creator" name="creator" value = "<?php if (isset($creator)) echo $creator; ?>" placeholder="请输入作者">
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="journal">期刊:</label>
-                <div class="controls">
-                    <input class="span12" type="text" id="journal" name="journal" value = "<?php if (isset($journal)) echo $journal; ?>" placeholder="请输入期刊">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label class="control-label" for="year">年份:</label>
-                <div class="controls controls-row">   
-                    <input class="span12" type="text" id="year" name="year" value = "<?php if (isset($year)) echo $year; ?>" placeholder="请输入年份">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label class="control-label" for="vol">卷号:</label>
-                <div class="controls controls-row">   
-                    <input class="span12" type="vol" id="vol" name="vol" value = "<?php if (isset($vol)) echo $vol; ?>" placeholder="请输入卷号">
-                </div> 
-            </div>
-
-            <div class="control-group">
-                <label class="control-label" for="iss">期号:</label>
-                <div class="controls controls-row">   
-                    <input class="span12" type="iss" id="iss" name="iss" value = "<?php if (isset($iss)) echo $iss; ?>" placeholder="请输入期号">
-                </div> 
-            </div>
-
-            <div class="control-group"">
-                <label class="control-label" for="pages">页码:</label>  
-                <div class="controls controls-row">   
-                    <input class="span12" type="text" id="pages" name="pages" value = "<?php if (isset($pages)) echo $pages; ?>" placeholder="请输入页码">
-                </div>
-            </div>
+                    
 
             <div class="control-group">
                 <label class="control-label" for="publisher">出版者:</label>
@@ -148,13 +144,20 @@ if (isset($_GET['action'])) {
 
                 </div>
             </div>               
+            
+            <div class="control-group">
+                <label class="control-label" for="subject">主题:</label>
+                <div class="controls">
+                    <input class="span12" type="text" id="subject" name="subject" value = "<?php if (isset($subject)) echo $subject; ?>" placeholder="请输入主题">
 
+                </div>
+            </div>               
 
 
             <div class="control-group">
-                <label class="control-label" for="abstract">摘要:</label>
+                <label class="control-label" for="description">描述:</label>
                 <div class="controls">
-                    <textarea class="span12" id="abstract" name="abstract" value = "<?php if (isset($abstract)) echo $abstract; ?>" placeholder="请输入摘要" rows="6"></textarea>
+                    <textarea class="span12" id="description" name="description"  placeholder="请输入描述" rows="6"><?php if (isset($description)) echo $description; ?></textarea>
                 </div>
             </div>
             <div class="control-group">
@@ -166,7 +169,7 @@ if (isset($_GET['action'])) {
             <div class="control-group">
                 <div class="controls">
                     <input class="btn btn-primary" type="submit" name="submit" value="提交" />    
-                    <a class="btn btn-success" href="article_manager.php">返回首页</a>
+                    <a class="btn btn-success" href="resource_manager.php">返回首页</a>
                 </div>
             </div>
 
