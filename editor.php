@@ -38,7 +38,6 @@ function modifyTags($dbc, $segment_id, $tag_string) {
     }
 }
 
-$dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -66,7 +65,7 @@ if (isset($_GET['id'])) {
         $result1 = mysqli_query($dbc, $query1) or die('Error querying database.');
         $row1 = mysqli_fetch_array($result1);
 
-        $new_segments = str_replace(',' . $id, ',' . $id . ',' . $nid, $row1['segments']);
+        $new_segments = str_replace('|' . $id. '|', '|' . $id . '|' . $nid. '|', $row1['segments']);
 
         $update = "update article set segments = '$new_segments' where id = '$article_id'";
         mysqli_query($dbc, $update) or die('Error querying database.');

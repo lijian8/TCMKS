@@ -1,7 +1,10 @@
 <?php
+include_once ("./header.php");
+include_once ("./pop_up.php");
+include_once ("./rights.php");
+include_once ("./image_helper.php");
+include_once ("./article_helper.php");
 require_once('appvars.php');
-
-//require_once('connectvars.php');
 
 function render_images($dbc, $id, $segment_id, $all_images) {
 
@@ -78,41 +81,7 @@ function delete_segment($dbc, $id, $segment_id) {
     mysqli_query($dbc, $update) or die('Error querying database.');
 }
 
-/*
-  function delete_segment($dbc, $id) {
 
-  $query = "SELECT * FROM segment WHERE id = '$id'";
-  $result = mysqli_query($dbc, $query) or die('Error querying database.');
-  $row = mysqli_fetch_array($result);
-  $prev = $row['prev'];
-  $next = $row['next'];
-
-  $query = "UPDATE segment SET next = '$next' WHERE id = '$prev'";
-
-  $result = mysqli_query($dbc, $query) or die('Error querying database1.');
-
-  $query = "delete from segment where id = '$id'";
-  $result = mysqli_query($dbc, $query) or die('Error querying database1.');
-  } */
-
-function getUsers($dbc, $article_id, $role) {
-    $query = "SELECT * FROM `tcmks`.`authorship` as t1, `tcmks`.`users` as t2 where t1.author_id = t2.id and article_id = $article_id and role = '$role'";
-
-    $result = mysqli_query($dbc, $query) or die('Error querying database3.');
-    $s = "";
-
-    $first = true;
-    while ($row = mysqli_fetch_array($result)) {
-        if ($first) {
-            $first = false;
-        } else {
-            $s .= ',&nbsp;&nbsp;';
-        }
-        $s .= $row['real_name'];
-    }
-
-    return ($s != '') ? $s : '待定';
-}
 
 function set_image_no($dbc, $segments) {
     $image_no = 1;
@@ -146,25 +115,17 @@ function insert_segment($dbc, $id, $insert, $prev) {
     mysqli_query($dbc, $update) or die('Error querying database.');
 }
 
-include_once ("./header.php");
-include_once ("./pop_up.php");
-include_once ("./rights.php");
-include_once ("./image_helper.php");
-include_once ("./article_helper.php");
+
 
 
 //include_once ("./number_sign_processing.php");
 $biblio = array();
 
-
-
-
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    //$dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');
-
+   
     $has_right_to_edit = has_right_to_edit($dbc, $_SESSION['id'], $id);
-//$has_right_to_edit = 1;
+
     if (isset($_GET['delete_image'])) {
         delete_image_from_segment($dbc, $_GET['segment_id'], $_GET['delete_image']);
     }
@@ -178,13 +139,9 @@ if (isset($_GET['id'])) {
     }
 
 
-    //$title = get_article_title($dbc, $id);
+    
     $article_info = get_article_info($dbc, $id);
-
-
     $segments = get_segments($dbc, $id);
-
-
     $images = set_image_no($dbc, $segments);
     ?>
     <script type ="text/javascript">
@@ -243,13 +200,13 @@ if (isset($_GET['id'])) {
                     <font size ="2">
                     <p></p>
                     <p>&nbsp;&nbsp;<strong>创建者:&nbsp;</strong>
-                        <?php echo getUsers($dbc, $id, 'creator'); ?>;&nbsp;&nbsp;
+                        <?php echo render_authors($dbc, $id, 'creator', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;
                         <strong>作者:&nbsp;</strong>
-                        <?php echo getUsers($dbc, $id, 'author'); ?>;&nbsp;&nbsp;     
+                        <?php echo render_authors($dbc, $id, 'author', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;     
                         <strong>评审:&nbsp;</strong>
-                        <?php echo getUsers($dbc, $id, 'reviewer'); ?>;&nbsp;&nbsp;     
+                        <?php echo render_authors($dbc, $id, 'reviewer', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;     
                         <strong>发布者:&nbsp;</strong>
-                        <?php echo getUsers($dbc, $id, 'publisher'); ?>.     
+                        <?php echo render_authors($dbc, $id, 'publisher', ',&nbsp;&nbsp;'); ?>.     
                     <p>&nbsp;&nbsp;<strong>创建时间：</strong><?php echo $article_info[create_time]; ?> ;&nbsp;&nbsp; <strong>发布时间：</strong>06/07/2013</font></p>            
 
                     </font>
@@ -399,7 +356,7 @@ if (isset($_GET['id'])) {
         foreach ($biblio as $ref) {
             $q3 = "SELECT * FROM resource WHERE id = '$ref'";
             $r3 = mysqli_query($dbc, $q3) or die('Error querying database2.');
-            while ($row = mysqli_fetch_array($r3)) {
+            if ($row = mysqli_fetch_array($r3)) {
                 echo "<li id = \"" . $row['id'] . "\">";
                 //echo "<a name =\"".$row3['id']."\">";
                 //$link = '<a href="javascript:invokePopupService(\'' . $row['id'] . '\',\'resource\');">[' . $row['id'] . ']</a>';
@@ -413,13 +370,14 @@ if (isset($_GET['id'])) {
                 }
 
                 echo '</li>';
+            }else{
+                echo "<li id = \"" . $ref . "\">该文献信息已不存在。</li>";
             }
         }
         echo '</ol>';
         echo '</section>';
     }
-    //print_r($biblio);
-    //mysqli_close($dbc);
+   
 }
 ?>
         </div>

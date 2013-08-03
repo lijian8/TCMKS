@@ -2,7 +2,7 @@
 include_once ("./header.php");
 
 require_once('appvars.php');
-
+$managing_subject = 'me';
 
 if (isset($_POST['submit'])) {
     $id = $_SESSION['id'];
@@ -29,59 +29,63 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
-<div class="row-fluid">
-    <div class="span2">
-    </div>  
-    <div class="span8">
-        <form action="me.php" method="post" class="form-horizontal"
-              enctype="multipart/form-data">
-            <legend>请编辑您的信息：</legend>
+<p></p>
+<div class="container">
+    <div class="row-fluid">
+        <div class="span2">
+            <?php include_once ("manager_sidebar.php"); ?>
+        </div><!--/span-->
+        <div class="span10">
 
-            <div class="control-group">
-                <label class="control-label" for="usr">用户名:</label>
-                <div class="controls">
-                    <input class="span12" type="text" id="usr" name="usr" value="<?php if (!empty($usr)) echo $usr; ?>">
+            <form action="me.php" method="post" class="form-horizontal"
+                  enctype="multipart/form-data">
+                <legend>请编辑您的信息：</legend>
+
+                <div class="control-group">
+                    <label class="control-label" for="usr">用户名:</label>
+                    <div class="controls">
+                        <input class="span12" type="text" id="usr" name="usr" value="<?php if (!empty($usr)) echo $usr; ?>">
+                    </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="email">电子邮件:</label>
-                <div class="controls">
-                    <input class="span12" type="text" id="email" name="email" value="<?php if (!empty($email)) echo $email; ?>">
+                <div class="control-group">
+                    <label class="control-label" for="email">电子邮件:</label>
+                    <div class="controls">
+                        <input class="span12" type="text" id="email" name="email" value="<?php if (!empty($email)) echo $email; ?>">
+                    </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="real_name">真实姓名:</label>
-                <div class="controls">
-                    <input class="span12" type="text" id="real_name" name="real_name" value="<?php if (!empty($real_name)) echo $real_name; ?>">
+                <div class="control-group">
+                    <label class="control-label" for="real_name">真实姓名:</label>
+                    <div class="controls">
+                        <input class="span12" type="text" id="real_name" name="real_name" value="<?php if (!empty($real_name)) echo $real_name; ?>">
+                    </div>
                 </div>
-            </div>
 
-            <div class="control-group">
-                <label class="control-label" for="profile">职务/职称:</label>
-                <div class="controls controls-row">   
-                    <input class="span12" type="text" id="job" name="job" value="<?php if (!empty($job)) echo $job; ?>">
+                <div class="control-group">
+                    <label class="control-label" for="profile">职务/职称:</label>
+                    <div class="controls controls-row">   
+                        <input class="span12" type="text" id="job" name="job" value="<?php if (!empty($job)) echo $job; ?>">
+                    </div>
                 </div>
-            </div>
 
-            <div class="control-group">
-                <label class="control-label" for="profile">简介:</label>
-                <div class="controls">
-                    <textarea class="span12" id="profile" name="profile" rows="6"><?php if (!empty($profile)) echo $profile; ?></textarea>
+                <div class="control-group">
+                    <label class="control-label" for="profile">简介:</label>
+                    <div class="controls">
+                        <textarea class="span12" id="profile" name="profile" rows="6"><?php if (!empty($profile)) echo $profile; ?></textarea>
+                    </div>
                 </div>
-            </div>
 
 
-            <div class="control-group">
-                <div class="controls">
-                    <input class="btn btn-primary" type="submit" name="submit" value="提交" />                       
+                <div class="control-group">
+                    <div class="controls">
+                        <input class="btn btn-primary" type="submit" name="submit" value="提交" />                       
+                    </div>
                 </div>
-            </div>
 
-        </form>
+            </form>
 
+        </div>
     </div>
 </div>
-
 
 <?php
 include_once ("./foot.php");

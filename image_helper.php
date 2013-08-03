@@ -80,7 +80,7 @@ function init_image($dbc, $user_id) {
     $image_id = getMaxImageId($dbc) + 1;
 
     $query = "INSERT INTO images (id, date, user_id) VALUES ('$image_id', NOW(), '$user_id')";
-    echo $query;
+    
     mysqli_query($dbc, $query);
     return $image_id;
 }
@@ -103,7 +103,6 @@ function upload_image($dbc, $name, $subject, $discription) {
                     // Connect to the database
                     // Write the data to the database
                     $query = "INSERT INTO images VALUES ('$image_id', '$name', '$new_file_name', '$subject', NOW(), '$discription', '1', '$user_id')";
-                    echo $query;
                     mysqli_query($dbc, $query);
 
                     $name = "";

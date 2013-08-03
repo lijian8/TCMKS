@@ -88,7 +88,7 @@ if (isset($_POST['submit'])) {
             <div class="control-group">
                 <div class="controls">
                     <input class="btn btn-primary" type="submit" name="submit" value="创建" />    
-                    <a class="btn btn-success" href="index.php">返回首页</a>
+                    <a class="btn btn-success" href="articles.php">返回首页</a>
                 </div>
             </div>
 

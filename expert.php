@@ -17,21 +17,7 @@ function getUsers($dbc, $article_id, $role) {
     return $s;
 }
 
-function list_articles($dbc, $user_id) {
-    $query = "SELECT distinct id, title, create_time FROM authorship au,article ar where au.article_id = ar.id and author_id = $user_id";
-    $result = mysqli_query($dbc, $query) or die('Error querying database3.');
 
-    while ($row = mysqli_fetch_array($result)) {
-
-        $creators = getUsers($dbc, $row[id], 'creator');
-        echo "<h4><a href = \"article.php?id=$row[id]\">" . $row[title] . "</a></h4>";
-        echo "$creators 创建于$row[create_time]";
-        //$abstract = get_abstract($dbc, $row['id'], $row['first']);
-        $abstract = get_abstract($dbc, $row[id]);
-        $abstract = mb_substr($abstract, 0, 100, 'utf-8');
-        echo "<p>" . $abstract . "...</p>";
-    }
-}
 
 if (isset($_GET['id'])) {
     $user_id = $_GET['id'];

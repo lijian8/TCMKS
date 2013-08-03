@@ -5,7 +5,7 @@ include_once ("./users_helper.php");
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     $query = "SELECT * FROM article WHERE id='$id'";
-    echo $query;
+    //echo $query;
     $result = mysqli_query($dbc, $query) or die('Error querying database table:article');
     if ($row = mysqli_fetch_array($result)) {
         $title = $row['title'];
@@ -118,7 +118,7 @@ if (isset($_POST['submit'])) {
             <div class="control-group">
                 <div class="controls">
                     <input class="btn btn-primary" type="submit" name="submit" value="创建" />    
-                    <a class="btn btn-success" href="index.php">返回首页</a>
+                    <a class="btn btn-success" href="articles.php">返回首页</a>
                 </div>
             </div>
 

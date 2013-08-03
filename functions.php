@@ -1,6 +1,6 @@
 <?php
 
-if(!defined('INCLUDE_CHECK')) die('You are not allowed to execute this file directly');
+//if(!defined('INCLUDE_CHECK')) die('You are not allowed to execute this file directly');
 
 function checkEmail($str)
 {
@@ -19,5 +19,10 @@ function send_mail($from,$to,$subject,$body)
 	$headers .= "Date: " . date('r', time()) . "\n";
 
 	mail($to,$subject,$body,$headers);
+}
+
+function tcmks_substr($str, $word_count=100){
+    $t = strip_tags($str);     
+    return mb_substr($t, 0, $word_count, 'utf-8');
 }
 ?>

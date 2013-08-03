@@ -2,9 +2,9 @@
 include_once ("./header.php");
 ?>
 <div class="container">
-    <div class="container">
-        <img width ="100%" src ="img/banner.jpg"></img>                    
-    </div>
+    
+    <img width ="100%" src ="img/banner.jpg"></img>                    
+    
     <p></p>
     <div class="row-fluid marketing">
         <div class="span6">
@@ -31,21 +31,21 @@ include_once ("./header.php");
         <div class="span6">
 
             <div class="media">
-                <a class="pull-left" href="index.php">
+                <a class="pull-left" href="articles.php">
                     <img class="media-object" src="img/review.jpg" data-src="holder.js/64x64">
                 </a>
                 <div class="media-body"  align ="left">
-                    <h4 class="media-heading"><a  href="index.php">综述编审</a></h4>
+                    <h4 class="media-heading"><a  href="articles.php">综述编审</a></h4>
                     <p>支持领域专家合作进行主题综述的编辑和评审，及时、准确地反映中医药领域科研的最新进展，支持领域专家进行临床决策。</p>
                 </div>
             </div>
             <div class="media">
-                <a class="pull-left" href="about.php">
+                <a class="pull-left" href="resource_manager.php">
                     <img class="media-object" src="img/technology.jpg" data-src="holder.js/64x64">
                 </a>
                 <div class="media-body" align ="left">
-                    <h4 class="media-heading">关于本站</h4>
-                    <p>介绍网站的相关技术，提供相关技术文档以及网站中知识资源（包括综述、文章、图片等）的统计信息。</p>
+                    <h4 class="media-heading"><a  href="resource_manager.php">资源管理</a></h4>
+                    <p>对用户提供的知识资源（包括综述、文章、图片等）进行综合管理。</p>
                 </div>
             </div>
         </div>

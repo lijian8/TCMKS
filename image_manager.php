@@ -3,6 +3,7 @@ include_once ("./header.php");
 include_once ("./image_helper.php");
 require_once('appvars.php');
 require_once('connectvars.php');
+$managing_subject = 'image';
 
 function render_image($row) {
     echo '<li class="span3">';
@@ -11,7 +12,7 @@ function render_image($row) {
     echo '<div class = "caption">';
     echo '<p><strong>' . $row['name'] . '.&nbsp;</strong>';
     echo $row['description'] . '</p>';
-    echo '<a href="javascript:popUpload(\''.$row['id'].'\');"><i class="icon-edit"></i></a>';
+    echo '<a href="javascript:popUpload(\'' . $row['id'] . '\');"><i class="icon-edit"></i></a>';
     echo '&nbsp;&nbsp';
     /*
       echo '<a href="#"><i class="icon-plus"></i></a>';
@@ -22,16 +23,15 @@ function render_image($row) {
     echo '</div></div></li>';
 }
 
-$dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
 if (isset($_GET['deleted_image_id'])) {
     delete_image($dbc, $_GET['deleted_image_id']);
 }
 
 if (isset($_POST['submit'])) {
-    
+
     $image_id = $_POST['image_id'];
-    
+
     $name = $_POST['name'];
 
     $subject = $_POST['subject'];
@@ -79,65 +79,75 @@ if (isset($_POST['submit'])) {
     }
 
 </script>
-
-<div class="container">
-    <div class="navbar">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </a>
-                <a class="brand" href="#">图片管理</a>
-                <div class="nav-collapse collapse navbar-responsive-collapse">
-                    <ul class="nav">
-                        <li><a  href="javascript:popUpload('new');">上传图片</a></li>
-                        <li><a href="#">删除图片</a></li>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">标签 <b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li><a href="#">添加标签</a></li>
-                                <li><a href="#">修改标签</a></li>
-                                <li><a href="#">删除标签</a></li>
-
-                            </ul>
-                        </li>
-
-
-                    </ul>
-                    <form class="navbar-search pull-left" action="">
-                        <input type="text" class="search-query span4" placeholder="请搜索图片">
-                        <button type="submit" class="btn-link"><i class="icon-search"></i></button>
-                    </form>
-                    <ul class="nav pull-right">
-                        <li><a  href="#">返回首页</a></li>
-
-                    </ul>
-                </div><!-- /.nav-collapse -->
-            </div>
-        </div><!-- /navbar-inner -->
-    </div><!-- /navbar -->
-</div>
+<p></p>
 <div class="container">
     <div class="row-fluid">
-        <?php
-        $query = "SELECT * FROM `tcmks`.`images`";
+        <div class="span2">
+<?php include_once ("manager_sidebar.php"); ?>
+        </div><!--/span-->
+        <div class="span10">
 
-        $result = mysqli_query($dbc, $query) or die('Error querying database.');
-        while ($row = mysqli_fetch_array($result)) {
 
-            echo '<ul class = "thumbnails">';
-            render_image($row);
-            if ($row = mysqli_fetch_array($result))
-                render_image($row);
-            if ($row = mysqli_fetch_array($result))
-                render_image($row);
-            if ($row = mysqli_fetch_array($result))
-                render_image($row);
-            echo '</ul>';
-        }
-        ?>
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </a>
+                        <a class="brand" href="#">图片管理</a>
+                        <div class="nav-collapse collapse navbar-responsive-collapse">
+                            <ul class="nav">
+                                <li><a  href="javascript:popUpload('new');">上传图片</a></li>
+                                <li><a href="#">删除图片</a></li>
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">标签 <b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#">添加标签</a></li>
+                                        <li><a href="#">修改标签</a></li>
+                                        <li><a href="#">删除标签</a></li>
+
+                                    </ul>
+                                </li>
+
+
+                            </ul>
+                            <form class="navbar-search pull-left" action="">
+                                <input type="text" class="search-query" placeholder="请搜索图片">
+                                <button type="submit" class="btn-link"><i class="icon-search"></i></button>
+                            </form>
+                            <ul class="nav pull-right">
+                                <li><a  href="#"><i class="icon-home"></i>返回首页</a></li>
+
+                            </ul>
+                        </div><!-- /.nav-collapse -->
+                    </div>
+                </div><!-- /navbar-inner -->
+            </div><!-- /navbar -->
+
+
+            <div class="row-fluid">
+                <?php
+                $query = "SELECT * FROM `tcmks`.`images`";
+
+                $result = mysqli_query($dbc, $query) or die('Error querying database.');
+                while ($row = mysqli_fetch_array($result)) {
+
+                    echo '<ul class = "thumbnails">';
+                    render_image($row);
+                    if ($row = mysqli_fetch_array($result))
+                        render_image($row);
+                    if ($row = mysqli_fetch_array($result))
+                        render_image($row);
+                    if ($row = mysqli_fetch_array($result))
+                        render_image($row);
+                    echo '</ul>';
+                }
+                ?>
+            </div>
+
+        </div>
     </div>
 </div>
 <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

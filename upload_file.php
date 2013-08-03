@@ -3,6 +3,7 @@ include_once ("./header.php");
 include_once ("./resource_helper.php");
 echo '<p></p>';
 require_once('appvars.php');
+
 //require_once('connectvars.php');
 
 function getMaxImageId($dbc) {
@@ -45,55 +46,61 @@ if (isset($_GET['action'])) {
             $title = $row['title'];
             $creator = $row['creator'];
             $publisher = $row['publisher'];
+            $source = $row['source'];
             $description = $row['description'];
             $type = $row['type'];
             $subject = $row['subject'];
-            
         }
     }
 } elseif (isset($_POST['submit'])) {
     $file_id = $_POST['file_id'];
-    echo $file_id;
+
     if (is_uploaded_file($_FILES['file']['tmp_name'])) {
         $file_name = upload_file($file_id);
-    }else{
+    } else {
         echo '您没有上传原文！';
     }
-    echo $file_name;
+
     $title = $_POST['title'];
     $creator = $_POST['creator'];
     $publisher = $_POST['publisher'];
     $description = $_POST['description'];
+    $source = $_POST['source'];
+    
     $type = $_POST['type'];
     $subject = $_POST['subject'];
-            
+
     $query = "update resource set ";
-    if ('' != $title){
-        $query .= "title = '$title',"; 
+    if ('' != $title) {
+        $query .= "title = '$title',";
+    }
+
+    if ('' != $file_name) {
+        $query .= "file = '$file_name',";
+    }
+
+     if ('' != $source) {
+        $query .= "source='$source',";
     }
     
-    if ('' != $file_name){
-        $query .= "file = '$file_name',"; 
+    if ('' != $creator) {
+        $query .= "creator='$creator',";
     }
-    
-    if ('' != $creator){
-        $query .= "creator='$creator',"; 
+
+    if ('' != $description) {
+        $query .= "description = '$description',";
     }
-    
-    if ('' != $description){
-        $query .= "description = '$description',"; 
+
+    if ('' != $publisher) {
+        $query .= "publisher = '$publisher', ";
     }
-    
-    if ('' != $publisher){
-        $query .= "publisher = '$publisher', "; 
+
+    if ('' != $subject) {
+        $query .= "subject = '$subject' ";
     }
-    
-    if ('' != $subject){
-        $query .= "subject = '$subject' "; 
-    }
-    
+
     $query .= " where id = '$file_id'";
-    echo $query;
+
 
     //$query = "INSERT INTO resource VALUES ('$file_id', '$title', '$file_name', '$creator', '$journal', '$pages', '$year', '$publisher',NULL)";
     mysqli_query($dbc, $query);
@@ -104,7 +111,7 @@ if (isset($_GET['action'])) {
     echo '文献信息如下：';
     echo '<dl class="dl-horizontal">';
     echo "<dt>文献题目:</dt><dd>" . $title . '</dd>';
-    echo "<dt>文献类型:</dt><dd>" . $type . '</dd>';    
+    echo "<dt>文献类型:</dt><dd>" . $type . '</dd>';
     echo "<dt>文件名称:</dt><dd>" . $file_name . "</dd>";
     echo "<dt>文件类型:</dt><dd>" . $_FILES["file"]["type"] . "</dd>";
     echo "<dt>文件尺寸:<dt><dd>" . ($_FILES["file"]["size"] / 1024) . "Kb</dd>";
@@ -119,7 +126,7 @@ if (isset($_GET['action'])) {
     <div class="span8">
         <form action="upload_file.php" method="post" class="form-horizontal"
               enctype="multipart/form-data">
-            <legend>请录入<?php  echo isset($type) ? $type : '文献'; ?>的信息：</legend>
+            <legend>请录入<?php echo isset($type) ? $type : '文献'; ?>的信息：</legend>
             <input  type="hidden" id="file_id" name="file_id" value = "<?php if (isset($file_id)) echo $file_id; ?>" >
             <input  type="hidden" id="type" name="type" value = "<?php if (isset($type)) echo $type; ?>" >
 
@@ -135,7 +142,14 @@ if (isset($_GET['action'])) {
                     <input class="span12" type="text" id="creator" name="creator" value = "<?php if (isset($creator)) echo $creator; ?>" placeholder="请输入作者">
                 </div>
             </div>
-                    
+
+            <div class="control-group">
+                <label class="control-label" for="source">出处:</label>
+                <div class="controls">
+                    <input class="span12" type="text" id="source" name="source" value = "<?php if (isset($source)) echo $source; ?>" placeholder="请输入出处">
+
+                </div>
+            </div>               
 
             <div class="control-group">
                 <label class="control-label" for="publisher">出版者:</label>
@@ -144,7 +158,7 @@ if (isset($_GET['action'])) {
 
                 </div>
             </div>               
-            
+
             <div class="control-group">
                 <label class="control-label" for="subject">主题:</label>
                 <div class="controls">

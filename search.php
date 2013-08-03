@@ -1,6 +1,7 @@
 <?php
 include_once ("./header.php");
 include_once ("./article_helper.php");
+include_once ("./functions.php");
 require_once('appvars.php');
 
 if (isset($_POST['submit'])) {
@@ -27,8 +28,9 @@ if (isset($_POST['submit'])) {
 
                     $segment_title = $row[title];
                     $segment_id = $row[id];
-                    $segment_content = mb_substr($row[content], 0, 100, 'utf-8');
-
+                    
+                    $segment_content = tcmks_substr($row[content]);
+                   
                     $articles = get_articles_by_seg($dbc, $segment_id);
 
                     echo "<h4>";
