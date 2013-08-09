@@ -5,20 +5,6 @@ require_once('appvars.php');
 include_once ("./header.php");
 include_once ("./article_helper.php");
 
-function getUsers($dbc, $article_id, $role) {
-    $query = "SELECT * FROM `tcmks`.`authorship` as t1, `tcmks`.`users` as t2 where t1.author_id = t2.id and article_id = $article_id and role = '$role'";
-
-    $result = mysqli_query($dbc, $query) or die('Error querying database3.');
-    $s = "";
-    while ($row = mysqli_fetch_array($result)) {
-        $s .= $row['real_name'] . "&nbsp;";
-    }
-    //echo $query.$s;
-    return $s;
-}
-
-
-
 if (isset($_GET['id'])) {
     $user_id = $_GET['id'];
     //$dbc = mysqli_connect('localhost', 'tcmks', 'tcmks', 'tcmks') or die('Error connecting to MySQL server.');

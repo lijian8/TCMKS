@@ -11,7 +11,7 @@ if (isset($_POST['submit'])) {
     $real_name = $_POST['real_name'];
     $job = $_POST['job'];
     $profile = $_POST['profile'];
-    $query = "UPDATE users SET usr = '$usr', email = '$email', real_name = '$real_name', job = '$job', profile ='$profile' WHERE id = '$id'";
+    $query = "UPDATE users SET usr = '".mysql_escape_string($usr)."', email = '".mysql_escape_string($email)."', real_name = '".mysql_escape_string($real_name)."', job = '".mysql_escape_string($job)."', profile ='".mysql_escape_string($profile)."' WHERE id = '$id'";
     mysqli_query($dbc, $query);
     echo '<div class="alert alert-success">';
     echo '<button type="button" class="close" data-dismiss="alert">&times;</button>';

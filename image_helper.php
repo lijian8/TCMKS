@@ -102,7 +102,7 @@ function upload_image($dbc, $name, $subject, $discription) {
                 if (move_uploaded_file($_FILES['screenshot']['tmp_name'], $target)) {
                     // Connect to the database
                     // Write the data to the database
-                    $query = "INSERT INTO images VALUES ('$image_id', '$name', '$new_file_name', '$subject', NOW(), '$discription', '1', '$user_id')";
+                    $query = "INSERT INTO images VALUES ('$image_id', '".mysql_escape_string($name)."', '$new_file_name', '".mysql_escape_string($subject)."', NOW(), '".mysql_escape_string($discription)."', '1', '$user_id')";
                     mysqli_query($dbc, $query);
 
                     $name = "";
@@ -129,7 +129,7 @@ function update_image($dbc, $image_id, $name, $subject, $description){
                
     
     if ('' != $name){
-        $query = "update images set name = '$name' where id = '$image_id'";
+        $query = "update images set name = '".mysql_escape_string($name)."' where id = '$image_id'";
         mysqli_query($dbc, $query);
     }
     
@@ -140,13 +140,13 @@ function update_image($dbc, $image_id, $name, $subject, $description){
     }
     
     if ('' != $subject){
-        $query = "update images set subject='$subject' where id = '$image_id'";
+        $query = "update images set subject='".mysql_escape_string($subject)."' where id = '$image_id'";
         mysqli_query($dbc, $query);
         
     }
     
     if ('' != $description){
-        $query = "update images set description = '$description' where id = '$image_id'";
+        $query = "update images set description = '".mysql_escape_string($description)."' where id = '$image_id'";
         mysqli_query($dbc, $query);
        
     }

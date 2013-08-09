@@ -17,7 +17,7 @@ if (isset($_POST['submit'])) {
     $title = $_POST['title'];
 
 
-    $query = "update article set title = '$title' where id = '$id'";
+    $query = "update article set title = '".mysql_escape_string($title)."' where id = '$id'";
     mysqli_query($dbc, $query) or die('Error querying database:');
 
     $query = "delete from authorship where article_id = '$id' and role != 'creator'";

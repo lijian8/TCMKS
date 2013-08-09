@@ -1,6 +1,9 @@
 <?php
 include_once ("./header.php");
 include_once ("./resource_helper.php");
+include_once ("./functions.php");
+
+
 echo '<p></p>';
 require_once('appvars.php');
 
@@ -65,43 +68,30 @@ if (isset($_GET['action'])) {
     $creator = $_POST['creator'];
     $publisher = $_POST['publisher'];
     $description = $_POST['description'];
+    
     $source = $_POST['source'];
     
     $type = $_POST['type'];
     $subject = $_POST['subject'];
 
     $query = "update resource set ";
-    if ('' != $title) {
-        $query .= "title = '$title',";
-    }
+    
+    $query .= "title = '".mysql_escape_string($title)."',";
 
     if ('' != $file_name) {
         $query .= "file = '$file_name',";
     }
 
-     if ('' != $source) {
-        $query .= "source='$source',";
-    }
+    $query .= "source='".mysql_escape_string($source)."',";
+    $query .= "creator='".mysql_escape_string($creator)."',";
+    //$query .= "description = '".tcmks_substr(mysql_escape_string($description),1000)."',";
+    $query .= "description = '".mysql_escape_string($description)."',";
+    $query .= "publisher = '".mysql_escape_string($publisher)."', ";
+    $query .= "subject = '".mysql_escape_string($subject)."' ";
     
-    if ('' != $creator) {
-        $query .= "creator='$creator',";
-    }
-
-    if ('' != $description) {
-        $query .= "description = '$description',";
-    }
-
-    if ('' != $publisher) {
-        $query .= "publisher = '$publisher', ";
-    }
-
-    if ('' != $subject) {
-        $query .= "subject = '$subject' ";
-    }
-
     $query .= " where id = '$file_id'";
 
-
+    //echo $query;
     //$query = "INSERT INTO resource VALUES ('$file_id', '$title', '$file_name', '$creator', '$journal', '$pages', '$year', '$publisher',NULL)";
     mysqli_query($dbc, $query);
 

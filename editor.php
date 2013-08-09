@@ -31,7 +31,7 @@ function modifyTags($dbc, $segment_id, $tag_string) {
         foreach ($tags as $tag) {
             if (!empty($tag)) {
                 //$final_tags[] = $tag;
-                $query = "INSERT INTO tags VALUES('$segment_id','$tag')";
+                $query = "INSERT INTO tags VALUES('$segment_id','".mysql_escape_string($tag)."')";
                 mysqli_query($dbc, $query) or die('Error querying database.');
             }
         }
@@ -81,7 +81,7 @@ if (isset($_GET['id'])) {
     $content = $_POST['content'];
     $article_id = $_POST['article_id'];
     $tags = $_POST['tags'];
-    $query = "UPDATE segment SET rank = '$rank', title = '$title', content = '$content' WHERE id = '$id'";
+    $query = "UPDATE segment SET rank = '$rank', title = '". mysql_escape_string($title)."', content = '". mysql_escape_string($content)."' WHERE id = '$id'";
     
     $result = mysqli_query($dbc, $query) or die('Error querying database.');
     modifyTags($dbc, $id, $tags);
