@@ -1,26 +1,35 @@
 <?php
+
 function get_file_by_id($dbc, $id) {
     $query = "SELECT file FROM resource WHERE id = '$id'";
-   
+
     $result = mysqli_query($dbc, $query) or die('Error querying database.');
     if ($row = mysqli_fetch_array($result)) {
         return $row[file];
     }
 }
 
-function init_resource($dbc, $type){ 
-    $file_id = getMaxImageId($dbc) + 1;
+function get_max_resource_id($dbc) {
+    $query = 'select max(id) as id from resource';
+    $result = mysqli_query($dbc, $query) or die('Error querying database.');
+    if ($row = mysqli_fetch_array($result)) {
+        return $row[id];
+    }
+}
+
+function init_resource($dbc, $type) {
+    $file_id = get_max_resource_id($dbc) + 1;
     $user_id = $_SESSION['id'];
-    
-    $query = "INSERT INTO resource (id, create_time, user_id, type) VALUES ('$file_id',NOW(), '$user_id', '$type')";     
+
+    $query = "INSERT INTO resource (id, create_time, user_id, type) VALUES ('$file_id',NOW(), '$user_id', '$type')";
     //echo $query;
-    mysqli_query($dbc, $query);  
+    mysqli_query($dbc, $query);
     return $file_id;
 }
 
 function get_title_by_id($dbc, $id) {
     $query = "SELECT title FROM resource WHERE id = '$id'";
-    
+
     $result = mysqli_query($dbc, $query) or die('Error querying database.');
     if ($row = mysqli_fetch_array($result)) {
         return $row[title];
@@ -30,10 +39,10 @@ function get_title_by_id($dbc, $id) {
 function delete_resource($dbc, $id) {
     $file = GW_UPLOADPATH . get_file_by_id($dbc, $id);
     unlink($file);
-    
+
     $query = "DELETE FROM resource WHERE id = '$id'";
     mysqli_query($dbc, $query) or die('Error querying database.');
-
 }
+
 ?>
  

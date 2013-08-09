@@ -12,8 +12,6 @@ if (isset($_GET['deleted_file'])) {
     echo '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>';
     echo '文献"' . $deleted_file . '"已被删除!</div>';
 }
-
-
 ?>
 <p></p>
 <div class="container">
@@ -41,7 +39,7 @@ if (isset($_GET['deleted_file'])) {
                                         <li><a href="upload_file.php?action=create&type=期刊文献">录入期刊文献</a></li>
                                         <li><a href="upload_file.php?action=create&type=会议文献">录入会议文献</a></li>
                                         <li><a href="upload_file.php?action=create&type=指南">录入指南</a></li>
-
+                                        <li><a href="upload_file.php?action=create">录入其他资源</a></li>
                                     </ul>
                                 </li>
 

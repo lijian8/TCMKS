@@ -1,7 +1,6 @@
 <?php
 include_once ("./header.php");
 include_once ("./pop_up.php");
-include_once ("./rights.php");
 include_once ("./image_helper.php");
 include_once ("./article_helper.php");
 require_once('appvars.php');
@@ -81,8 +80,6 @@ function delete_segment($dbc, $id, $segment_id) {
     mysqli_query($dbc, $update) or die('Error querying database.');
 }
 
-
-
 function set_image_no($dbc, $segments) {
     $image_no = 1;
 
@@ -115,15 +112,12 @@ function insert_segment($dbc, $id, $insert, $prev) {
     mysqli_query($dbc, $update) or die('Error querying database.');
 }
 
-
-
-
 //include_once ("./number_sign_processing.php");
 $biblio = array();
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-   
+
     $has_right_to_edit = has_right_to_edit($dbc, $_SESSION['id'], $id);
 
     if (isset($_GET['delete_image'])) {
@@ -139,7 +133,7 @@ if (isset($_GET['id'])) {
     }
 
 
-    
+
     $article_info = get_article_info($dbc, $id);
     $segments = get_segments($dbc, $id);
     $images = set_image_no($dbc, $segments);
@@ -154,43 +148,50 @@ if (isset($_GET['id'])) {
             <div class="span3  bs-docs-sidebar">
                 <ul class="nav nav-list bs-docs-sidenav">
 
-                    <?php
-                    $is_first_segment = true;
-                    //print_r($segments);
-                    //$i = 0;
-                    //while ($segment_id != 0) {
-                    foreach ($segments as $segment_id) {
+    <?php
+    $is_first_segment = true;
+    //print_r($segments);
+    //$i = 0;
+    //while ($segment_id != 0) {
+    foreach ($segments as $segment_id) {
 
-                        if ('' != $segment_id) {
-                            // echo 'echo:'.$segment_id;
+        if ('' != $segment_id) {
+            // echo 'echo:'.$segment_id;
 
-                            $q2 = "SELECT * FROM segment WHERE id = '$segment_id'";
-                            $r2 = mysqli_query($dbc, $q2) or die('Error querying database2.');
-                            $row2 = mysqli_fetch_array($r2);
+            $q2 = "SELECT * FROM segment WHERE id = '$segment_id'";
+            $r2 = mysqli_query($dbc, $q2) or die('Error querying database2.');
+            $row2 = mysqli_fetch_array($r2);
 
-                            $c_id = $row2['id'];
-                            $c_title = $row2['title'];
-                            //echo $c_title;
-                            $c_rank = $row2['rank'];
+            $c_id = $row2['id'];
+            $c_title = $row2['title'];
+            //echo $c_title;
+            $c_rank = $row2['rank'];
 
-                            if ($c_rank == 1) {
-                                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
-                                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
+            if ($c_rank == 1) {
+                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
+                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
 
-                                //'<h2>' . $c_title . '</h2>';
-                            } else {
-                                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
-                                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
+                //'<h2>' . $c_title . '</h2>';
+            } else if ($c_rank == 2) {
+                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
+                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
 
-                                //echo '<h3>' . $c_title . '</h3>';
-                            }
-                            //$i++;
-                            //$segment_id = $row2['next'];
-                        }
-                    }
+                //echo '<h3>' . $c_title . '</h3>';
+            } else if ($c_rank == 3) {
+                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
+                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
 
-                    //mysqli_close($dbc);
-                    ?>
+                //echo '<h3>' . $c_title . '</h3>';
+            } else {
+                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
+            }
+            //$i++;
+            //$segment_id = $row2['next'];
+        }
+    }
+
+    //mysqli_close($dbc);
+    ?>
                 </ul>
             </div>
 
@@ -200,11 +201,11 @@ if (isset($_GET['id'])) {
                     <font size ="2">
                     <p></p>
                     <p>&nbsp;&nbsp;<strong>创建者:&nbsp;</strong>
-                        <?php echo render_authors($dbc, $id, 'creator', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;
+    <?php echo render_authors($dbc, $id, 'creator', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;
                         <strong>作者:&nbsp;</strong>
-                        <?php echo render_authors($dbc, $id, 'author', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;     
+    <?php echo render_authors($dbc, $id, 'author', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;     
                         <strong>评审:&nbsp;</strong>
-                        <?php echo render_authors($dbc, $id, 'reviewer', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;     
+    <?php echo render_authors($dbc, $id, 'reviewer', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;     
                         <strong>发布者:&nbsp;</strong>
                         <?php echo render_authors($dbc, $id, 'publisher', ',&nbsp;&nbsp;'); ?>.     
                     <p>&nbsp;&nbsp;<strong>创建时间：</strong><?php echo $article_info[create_time]; ?> ;&nbsp;&nbsp; <strong>发布时间：</strong>06/07/2013</font></p>            
@@ -217,9 +218,9 @@ if (isset($_GET['id'])) {
                             ?>        
                             <a class="btn btn-primary" href="#"><i class="icon-edit icon-white"></i>&nbsp;编辑全文</a>
                             <a class="btn btn-primary" href="#"><i class="icon-trash icon-white"></i>&nbsp;删除本文</a> 
-        <?php
-    }
-    ?>
+                            <?php
+                        }
+                        ?>
                         <a class="btn btn-warning" href="#"><i class="icon-download-alt icon-white"></i>&nbsp;下载全文</a>            
                         <a class="btn btn-warning" href="#"><i class="icon-home icon-white"></i>&nbsp;返回主页</a>            
                     </p>
@@ -246,13 +247,9 @@ if (isset($_GET['id'])) {
             $c_content = $row2['content'];
             $c_rank = $row2['rank'];
 
-            if ($c_rank == 1) {
-                //echo '<div class="page-header"><h2><font face="微软雅黑">' . $c_title . '</font></h2></div>';
-                echo '<h3><font face="微软雅黑">' . $c_title . '</font></h3>';
-            } else {
-                //echo '<div class="page-header"><h3><font face="微软雅黑">' . $c_title . '</font></h3></div>';
-                echo '<h4><font face="微软雅黑">' . $c_title . '</font></h4>';
-            }
+            $c_rank_no = $c_rank + 2;
+            echo '<h'.$c_rank_no.'><font face="微软雅黑">' . $c_title . '</font></h'.$c_rank_no.'>';
+          
 
 
             renderTags($dbc, $c_id);
@@ -370,14 +367,13 @@ if (isset($_GET['id'])) {
                 }
 
                 echo '</li>';
-            }else{
+            } else {
                 echo "<li id = \"" . $ref . "\">该文献信息已不存在。</li>";
             }
         }
         echo '</ol>';
         echo '</section>';
     }
-   
 }
 ?>
         </div>

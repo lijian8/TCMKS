@@ -2,28 +2,68 @@
 
 include_once ("./users_helper.php");
 include_once ("./functions.php");
+
 function render_article_summary($dbc, $article_id, $word_count = 0) {
     $article_info = get_article_info($dbc, $article_id);
     echo "<h4><a href = \"article.php?id=$article_id\">" . $article_info[title] . "</a></h4>";
     echo "$article_info[creators]创建于$article_info[create_time]";
     $abstract = get_abstract($dbc, $article_id);
-    if ($word_count != 0){
+    if ($word_count != 0) {
         $abstract = tcmks_substr($abstract);
     }
     echo '<p>' . $abstract . '</p>';
 }
 
-    
+function has_right_to_edit($dbc, $author_id, $article_id) {
+    $query = "SELECT * FROM authorship where author_id = $author_id and article_id = $article_id";
+    $result = mysqli_query($dbc, $query) or die('Error querying has right to edit.');
+    if ($row = mysqli_fetch_array($result)) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
-function get_abstract_id($dbc, $article_id){
+function is_deleted($dbc, $id) {
+    $query = "SELECT deleted FROM article where id = '$id'";
+    $result = mysqli_query($dbc, $query) or die('Error querying database.');
+
+    if ($row = mysqli_fetch_array($result)) {
+        return $row[deleted] == 1;
+    }
+}
+
+function is_published($dbc, $id) {
+    $query = "SELECT published FROM article where id = '$id'";
+    $result = mysqli_query($dbc, $query) or die('Error querying database.');
+
+    if ($row = mysqli_fetch_array($result)) {
+        return $row[published] == 1;
+    }
+}
+
+function has_article($dbc, $author_id, $role, $recycle) {
+
+
+    $query = "SELECT * FROM authorship where author_id = $author_id and role = '$role'";
+    $result = mysqli_query($dbc, $query) or die('Error querying database3.');
+    while ($row = mysqli_fetch_array($result)) {
+        if ($recycle && (is_deleted($dbc, $row[article_id])))
+            return true;
+        if ((!$recycle) && (!is_deleted($dbc, $row[article_id])))
+            return true;
+    }
+    return false;
+}
+
+function get_abstract_id($dbc, $article_id) {
     $segments = get_segments($dbc, $article_id);
 
     return $segments[0];
-    
 }
 
 function get_abstract($dbc, $article_id) {
-    
+
     $abstract_id = get_abstract_id($dbc, $article_id);
     $query = "SELECT content FROM segment where id = $abstract_id";
 
@@ -89,14 +129,28 @@ function get_articles_by_seg($dbc, $segment_id) {
     return $articles;
 }
 
+function recycle_article($dbc, $article_id) {
+    $deleted = is_deleted($dbc, $article_id) ? 0 : 1;
+    $query = "update article set deleted = '" . $deleted . "' where id = '$article_id'";
+    mysqli_query($dbc, $query) or die('Error querying database:');
+}
 
+function publish_article($dbc, $article_id) {
+    $query = "update article set published = '1', publish_time = NOW() where id = '$article_id'";
+    mysqli_query($dbc, $query) or die('Error querying database:');
+}
+
+function revoke_article($dbc, $article_id) {
+    $query = "update article set published = '0', publish_time = null where id = '$article_id'";
+    mysqli_query($dbc, $query) or die('Error querying database:');
+}
 
 function delete_article($dbc, $article_id) {
     $query = "DELETE FROM article WHERE id = '$article_id'";
     mysqli_query($dbc, $query);
     $query = "DELETE FROM authorship WHERE article_id = '$article_id'";
     mysqli_query($dbc, $query);
-    
+
     $abstract = get_abstract_id($dbc, $article_id);
     $query = "DELETE FROM segment WHERE id = '$abstract'";
     mysqli_query($dbc, $query);
@@ -104,11 +158,12 @@ function delete_article($dbc, $article_id) {
 
 function list_articles($dbc, $user_id) {
     $query = "SELECT distinct id, title, create_time FROM authorship au,article ar where au.article_id = ar.id and author_id = $user_id";
-    
+
     $result = mysqli_query($dbc, $query) or die('Error querying database3.');
 
     while ($row = mysqli_fetch_array($result)) {
-        render_article_summary($dbc, $row[id], $word_count = 0);       
+        render_article_summary($dbc, $row[id], $word_count = 0);
     }
 }
+
 ?>

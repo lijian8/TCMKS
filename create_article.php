@@ -15,8 +15,8 @@ function insert_abstract($dbc, $abstract, $article_id) {
     $result = mysqli_query($dbc, $query) or die('Error querying database1.');
     $row = mysqli_fetch_array($result);
     $id = $row['id'] + 1;
-    $query = "INSERT INTO segment (id, title, content, article_id, prev, next) " .
-            "VALUES ('$id','摘要','".mysql_escape_string($abstract)."', '$article_id','0', '0')";
+    $query = "INSERT INTO segment (id, title, content, article_id, rank, prev, next) " .
+            "VALUES ('$id','摘要','".mysql_escape_string($abstract)."', '$article_id','1','0', '0')";
     mysqli_query($dbc, $query) or die('Error querying database2.');
     return $id;
 }

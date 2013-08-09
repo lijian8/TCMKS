@@ -8,15 +8,6 @@ echo '<p></p>';
 require_once('appvars.php');
 
 //require_once('connectvars.php');
-
-function getMaxImageId($dbc) {
-    $query = "SELECT MAX(id) AS id FROM resource";
-
-    $result = mysqli_query($dbc, $query) or die('Error querying database.');
-    $row = mysqli_fetch_array($result);
-    return $row[id];
-}
-
 function upload_file($file_id) {
     if ($_FILES["file"]["error"] > 0) {
         echo "Error: " . $_FILES["file"]["error"] . "<br />";
@@ -39,7 +30,9 @@ function upload_file($file_id) {
 if (isset($_GET['action'])) {
     if ($_GET['action'] == 'create') {
         //echo 'create new resource!';
-        $type = $_GET['type'];
+        
+        $type = isset($_GET['type'])? $_GET['type']:'其他资源';
+        
         $file_id = init_resource($dbc, $type);
     } elseif ($_GET['action'] == 'update') {
         $file_id = $_GET['file_id'];
@@ -53,6 +46,8 @@ if (isset($_GET['action'])) {
             $description = $row['description'];
             $type = $row['type'];
             $subject = $row['subject'];
+            $identifiert = $row['identifier'];
+            
         }
     }
 } elseif (isset($_POST['submit'])) {
@@ -87,6 +82,7 @@ if (isset($_GET['action'])) {
     //$query .= "description = '".tcmks_substr(mysql_escape_string($description),1000)."',";
     $query .= "description = '".mysql_escape_string($description)."',";
     $query .= "publisher = '".mysql_escape_string($publisher)."', ";
+    $query .= "identifier = '".mysql_escape_string($identifier)."', ";
     $query .= "subject = '".mysql_escape_string($subject)."' ";
     
     $query .= " where id = '$file_id'";
@@ -126,6 +122,16 @@ if (isset($_GET['action'])) {
                     <input class="span12" type="text" id="title" name="title" value = "<?php if (isset($title)) echo $title; ?>" placeholder="请输入文献的题目">
                 </div>
             </div>
+            
+            <div class="control-group">
+                <label class="control-label" for="identifier">标识:</label>
+                <div class="controls">
+                    <input class="span12" type="text" id="identifier" name="identifier" value = "<?php if (isset($identifier)) echo $identifier; ?>" placeholder="请输入文献的标识">
+                </div>
+            </div>
+            
+            
+            
             <div class="control-group">
                 <label class="control-label" for="creator">创建者:</label>
                 <div class="controls">

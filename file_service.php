@@ -10,7 +10,7 @@ function listArticles($dbc, $q) {
         $q = substr($q, strlen(BIBLIO));
     }
 
-    $query = "SELECT * FROM resource where id = '$q' or title like '%$q%' ORDER BY title ASC";
+    $query = "SELECT * FROM resource where id = '$q' or title like '%$q%' or subject like '%$q%' ORDER BY title ASC LIMIT 0,10";
 
     $data = mysqli_query($dbc, $query);
 
@@ -19,7 +19,7 @@ function listArticles($dbc, $q) {
     while ($row = mysqli_fetch_array($data)) {
 
         //echo $row['id'];
-        $paper = '[' . $row['id'] . ']' . $row['authors'] . '.' . $row['title'] . '.' . $row['journal'] . ',' . $row['year'] . ',' . $row['pages'] . ',' . $row['publisher'] . '.';
+        $paper = '[' . $row['id'] . ']' . $row['creator'] . '.' . $row['title'] . '.';
         $text = '<label onClick="javascript:fileSelected(\'' . BIBLIO . $row ['id'] . '\');">' . $paper . '</label>';
         if ($hint == "") {
             /*
@@ -44,7 +44,7 @@ function listArticles($dbc, $q) {
 }
 
 function listConcepts($dbc, $q) {
-    $query = "SELECT * FROM def where name like '%$q%' ORDER BY name ASC";
+    $query = "SELECT * FROM def where name like '%$q%' ORDER BY name ASC LIMIT 0,10";
     $data = mysqli_query($dbc, $query);
     $hint = "";
 
@@ -66,7 +66,7 @@ function listImages($dbc, $q) {
         $q = substr($q, strlen(FIGURE));
     }
 
-    $query = "SELECT * FROM images where id like '%$q%' or name like '%$q%' ORDER BY id ASC";
+    $query = "SELECT * FROM images where id like '%$q%' or name like '%$q%' or subject like '%$q%' or description like '%$q%'  ORDER BY id ASC LIMIT 0,10";
 
     $data = mysqli_query($dbc, $query);
 
