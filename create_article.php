@@ -15,8 +15,10 @@ function insert_abstract($dbc, $abstract, $article_id) {
     $result = mysqli_query($dbc, $query) or die('Error querying database1.');
     $row = mysqli_fetch_array($result);
     $id = $row['id'] + 1;
-    $query = "INSERT INTO segment (id, title, content, article_id, rank, prev, next) " .
-            "VALUES ('$id','摘要','".mysql_escape_string($abstract)."', '$article_id','1','0', '0')";
+    $user_id = $_SESSION['id'];
+    $query = "INSERT INTO segment (id, title, content, rank, user_id) " .
+            "VALUES ('$id','摘要','".mysql_escape_string($abstract)."', '1','$user_id')";
+    
     mysqli_query($dbc, $query) or die('Error querying database2.');
     return $id;
 }
@@ -32,8 +34,10 @@ if (isset($_POST['submit'])) {
 
     $query = "INSERT INTO article (id, title) " .
             "VALUES ('$id','".mysql_escape_string($title)."')";
+    
     mysqli_query($dbc, $query) or die('Error querying database:');
-
+    
+    
     $segment_id = insert_abstract($dbc, $abstract, $id);
 
     $query = "UPDATE article SET segments = '|$segment_id|' where id = '$id'";
@@ -43,7 +47,7 @@ if (isset($_POST['submit'])) {
     $creator = $_SESSION['id'];
     $query = "INSERT INTO authorship (article_id, author_id, role) " .
             "VALUES ('$id','$creator', 'creator')";
-    //echo $query;
+    
     mysqli_query($dbc, $query) or die('Error querying database:');
 
 

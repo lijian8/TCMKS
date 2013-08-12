@@ -1,6 +1,7 @@
 <?php
 include_once ("./header.php");
 include_once ("./resource_helper.php");
+include_once ("./messages.php");
 require_once('appvars.php');
 $managing_subject = 'resource';
 if (isset($_GET['deleted_file'])) {
@@ -9,8 +10,9 @@ if (isset($_GET['deleted_file'])) {
 
     delete_resource($dbc, $_GET['deleted_file']);
 
-    echo '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>';
-    echo '文献"' . $deleted_file . '"已被删除!</div>';
+    //echo '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>';
+    //echo '文献"' . $deleted_file . '"已被删除!</div>';
+    render_success('文献"' . $deleted_file . '"已被删除!');
 }
 ?>
 <p></p>
@@ -75,18 +77,20 @@ if (isset($_GET['deleted_file'])) {
                 <tbody>
                     <tr class="info">
                         <td>#</td>
-                        <td width = "8%"><strong>创建者</strong></td>
-                        <td width = "8%"><strong>题名</strong></td>
-                        <td width = "8%"><strong>类型</strong></td>
-                        <td width = "8%"><strong>出处</strong></td>
-                        <td width = "8%"><strong>主题</strong></td>
-                        <td width = "15%"><strong>上传时间</strong></td> 
-                        <td width = "40%"><strong>操作</strong></td>
+                        <td ><strong>创建者</strong></td>
+                        <td><strong>题名</strong></td>
+                        <td><strong>类型</strong></td>
+                        <td><strong>出处</strong></td>
+                        <td><strong>主题</strong></td>
+                        <td><strong>上传时间</strong></td> 
+                        <td><strong>删除</strong></td>
 
                     </tr>
 
                     <?php
-                    $query = "SELECT * FROM resource ORDER BY title ASC";
+                    
+                    $user_id = $_SESSION[id];
+                    $query = "SELECT * FROM resource where user_id ='$user_id' ORDER BY title ASC";
                     $data = mysqli_query($dbc, $query);
 
                     $row_num = 1;
@@ -101,7 +105,14 @@ if (isset($_GET['deleted_file'])) {
                         echo '<td width = "3%">' . $row_num++ . '</td>';
                         echo '<td width = "15%">' . $row['creator'] . '</td>';
 
-                        echo '<td width = "20%">' . $row['title'] . '</td>';
+                        echo '<td width = "32%">';
+                        echo '<a class="btn-link" href="upload_file.php?action=update&file_id=' . $row[id] . '">' . $row['title'] . '</a>';
+                        
+                        if (($row['file'] != '')&&(is_file(GW_UPLOADPATH . $row['file']))) {
+                            echo '<a class="btn-link" href="' . GW_UPLOADPATH . $row['file'] . '"><i class="icon-download-alt"></i></a>';
+                        }
+                        echo '</td>';
+                        
                         echo '<td width = "5%">' . $row['type'] . '</td>';
 
                         echo '<td width = "20%">' . $row['source'] . '</td>';
@@ -109,13 +120,7 @@ if (isset($_GET['deleted_file'])) {
 
                         echo '<td width = "10%">' . $row['create_time'] . '</td>';
                         $file_name = iconv('utf-8', 'gb2312', $row['file']);
-                        echo '<td width = "15%">';
-                        echo '<a class="btn-link" href="upload_file.php?action=update&file_id=' . $row[id] . '"><i class="icon-edit"></i></a>';
-
-                        if (is_file(GW_UPLOADPATH . $file_name)) {
-                            echo '<a class="btn-link" href="' . GW_UPLOADPATH . $row['file'] . '"><i class="icon-download-alt"></i></a>';
-                        }
-
+                        echo '<td width = "5%">';    
                         $link_for_delete = $_SERVER['PHP_SELF'] . '?deleted_file=' . $row['id'];
                         echo '<a class="btn-link" href="' . $link_for_delete . '"><i class="icon-trash"></i></a></td></tr>';
                     }

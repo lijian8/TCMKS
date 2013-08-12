@@ -1,14 +1,35 @@
 <?php
 include_once ("./header.php");
+include_once ("./article_helper.php");
 ?>
 <div class="container">
-    
+
     <img width ="100%" src ="img/banner.jpg"></img>                    
-    
     <p></p>
     <div class="row-fluid marketing">
+       
+            <div class="media">
+                <a class="pull-left" href="experts.php">
+                    <img class="media-object" src="img/ResearchNews.jpg" data-src="holder.js/64x64">
+                </a>
+                <div class="media-body" align ="left">
+                    <h4 class="media-heading"><a href="experts.php">热点动态</a></h4>
+                    <?php
+                    echo get_content($dbc, 77);
+                    ?>
+                    
+                </div>
+            </div>
+             <div align ="right">
+                 <a href='article.php?id=13'>>>查看更多</a>
+             </div>    
+    </div>
+    <hr>
+    <div class="row-fluid marketing">
+
+
         <div class="span6">
-              <div class="media">
+            <div class="media">
                 <a class="pull-left" href="navigator.php">
                     <img class="media-object" src="img/resources.jpg" data-src="holder.js/64x64">
                 </a>
@@ -50,7 +71,7 @@ include_once ("./header.php");
             </div>
         </div>
     </div>
-
+   
 </div>
 <?php
 include_once ("./foot.php");

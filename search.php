@@ -22,36 +22,10 @@ if (isset($_POST['submit'])) {
         <div class="tab-content">
             <div class="tab-pane active" id="tab1">
                 <?php
-                $query = "SELECT * FROM segment where title like '%$keywords%' or content like '%$keywords%' ";
+                $query = "SELECT * FROM segment where title like '%$keywords%' or content like '%$keywords%' ORDER BY title ASC LIMIT 0,50";
                 $result = mysqli_query($dbc, $query) or die('Error querying database.');
                 while ($row = mysqli_fetch_array($result)) {
-
-                    $segment_title = $row[title];
-                    $segment_id = $row[id];
-                    
-                    $segment_content = tcmks_substr($row[content]);
-                   
-                    $articles = get_articles_by_seg($dbc, $segment_id);
-
-                    echo "<h4>";
-                    $first = true;
-                    foreach ($articles as $article_id) {
-                        if ($first) {
-                            $first = false;
-                        } else {
-                            echo ',&nbsp;';
-                        }
-                        echo get_article_link($dbc, $article_id);
-                    }
-
-                    if (!$first) {
-                        echo "&nbsp;/&nbsp;";
-                        echo "<a href = \"article.php?id=$article_id#s$segment_id\">" . $segment_title . "</a>";                    
-                    } else {
-                        echo "<a href = \"segment.php?id=$segment_id\">" . $segment_title . "</a>";                        
-                    }
-                    echo "</h4>";
-                    echo "<p>" . $segment_content . "...</p>";
+                    render_segment_summary($dbc, $row);                      
                 }
                 ?>
 

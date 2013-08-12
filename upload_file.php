@@ -30,9 +30,9 @@ function upload_file($file_id) {
 if (isset($_GET['action'])) {
     if ($_GET['action'] == 'create') {
         //echo 'create new resource!';
-        
-        $type = isset($_GET['type'])? $_GET['type']:'其他资源';
-        
+
+        $type = isset($_GET['type']) ? $_GET['type'] : '其他资源';
+
         $file_id = init_resource($dbc, $type);
     } elseif ($_GET['action'] == 'update') {
         $file_id = $_GET['file_id'];
@@ -46,8 +46,7 @@ if (isset($_GET['action'])) {
             $description = $row['description'];
             $type = $row['type'];
             $subject = $row['subject'];
-            $identifiert = $row['identifier'];
-            
+            $identifier = $row['identifier'];
         }
     }
 } elseif (isset($_POST['submit'])) {
@@ -55,36 +54,36 @@ if (isset($_GET['action'])) {
 
     if (is_uploaded_file($_FILES['file']['tmp_name'])) {
         $file_name = upload_file($file_id);
-    } else {
-        echo '您没有上传原文！';
+       
     }
 
     $title = $_POST['title'];
     $creator = $_POST['creator'];
     $publisher = $_POST['publisher'];
     $description = $_POST['description'];
-    
+    $identifier = $_POST['identifier'];
+
     $source = $_POST['source'];
-    
+
     $type = $_POST['type'];
     $subject = $_POST['subject'];
 
     $query = "update resource set ";
-    
-    $query .= "title = '".mysql_escape_string($title)."',";
+
+    $query .= "title = '" . mysql_escape_string($title) . "',";
 
     if ('' != $file_name) {
         $query .= "file = '$file_name',";
     }
 
-    $query .= "source='".mysql_escape_string($source)."',";
-    $query .= "creator='".mysql_escape_string($creator)."',";
+    $query .= "source='" . mysql_escape_string($source) . "',";
+    $query .= "creator='" . mysql_escape_string($creator) . "',";
     //$query .= "description = '".tcmks_substr(mysql_escape_string($description),1000)."',";
-    $query .= "description = '".mysql_escape_string($description)."',";
-    $query .= "publisher = '".mysql_escape_string($publisher)."', ";
-    $query .= "identifier = '".mysql_escape_string($identifier)."', ";
-    $query .= "subject = '".mysql_escape_string($subject)."' ";
-    
+    $query .= "description = '" . mysql_escape_string($description) . "',";
+    $query .= "publisher = '" . mysql_escape_string($publisher) . "', ";
+    $query .= "identifier = '" . mysql_escape_string($identifier) . "', ";
+    $query .= "subject = '" . mysql_escape_string($subject) . "' ";
+
     $query .= " where id = '$file_id'";
 
     //echo $query;
@@ -98,9 +97,13 @@ if (isset($_GET['action'])) {
     echo '<dl class="dl-horizontal">';
     echo "<dt>文献题目:</dt><dd>" . $title . '</dd>';
     echo "<dt>文献类型:</dt><dd>" . $type . '</dd>';
-    echo "<dt>文件名称:</dt><dd>" . $file_name . "</dd>";
-    echo "<dt>文件类型:</dt><dd>" . $_FILES["file"]["type"] . "</dd>";
-    echo "<dt>文件尺寸:<dt><dd>" . ($_FILES["file"]["size"] / 1024) . "Kb</dd>";
+    if ('' != $file_name) {
+        echo "<dt>文件名称:</dt><dd>" . $file_name . "</dd>";
+        echo "<dt>文件类型:</dt><dd>" . $_FILES["file"]["type"] . "</dd>";
+        echo "<dt>文件尺寸:<dt><dd>" . ($_FILES["file"]["size"] / 1024) . "Kb</dd>";
+    } else {
+        echo '您没有上传原文！';
+    }
     echo '</dl></div>';
 }
 //echo "Stored in: " . "upload/" . $_FILES["file"]["name"];
@@ -122,16 +125,16 @@ if (isset($_GET['action'])) {
                     <input class="span12" type="text" id="title" name="title" value = "<?php if (isset($title)) echo $title; ?>" placeholder="请输入文献的题目">
                 </div>
             </div>
-            
+
             <div class="control-group">
                 <label class="control-label" for="identifier">标识:</label>
                 <div class="controls">
                     <input class="span12" type="text" id="identifier" name="identifier" value = "<?php if (isset($identifier)) echo $identifier; ?>" placeholder="请输入文献的标识">
                 </div>
             </div>
-            
-            
-            
+
+
+
             <div class="control-group">
                 <label class="control-label" for="creator">创建者:</label>
                 <div class="controls">

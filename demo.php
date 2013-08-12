@@ -58,7 +58,7 @@ if ($_POST['submit'] == '登录') {
             $_SESSION['usr'] = $row['usr'];
             $_SESSION['id'] = $row['id'];
             $_SESSION['real_name'] = $row['real_name'];
-            
+
             $_SESSION['rememberMe'] = $_POST['rememberMe'];
 
             // Store some data in the session
@@ -78,7 +78,7 @@ if ($_POST['submit'] == '登录') {
 }
 else if ($_POST['submit'] == '注册') {
     // If the Register form has been submitted
-    echo "<script type='text/javascript'>alert(1111111);</script>";  
+    echo "<script type='text/javascript'>alert(1111111);</script>";
     $err = array();
 
     if (strlen($_POST['username']) < 4 || strlen($_POST['username']) > 32) {
@@ -174,7 +174,7 @@ if ($_SESSION['msg']) {
                 background:#008de6;
                 border:1px solid #E0E0E0;
                 padding:15px;
-                
+
                 /* Rounded corners */
                 -moz-border-radius:20px;
                 -khtml-border-radius: 20px;
@@ -305,16 +305,24 @@ if ($_SESSION['msg']) {
 
                 <div class="container">
 
-                    <p><strong>简介：</strong>目前，我国尚未出现类似于UpToDate的知识服务平台。循证知识服务平台在中医药领域中尚处于空白状态。
+                    <p><strong>简介：</strong>
+                        <?php
+                        $row = mysql_fetch_assoc(mysql_query("SELECT content FROM segment WHERE id=53"));
+                        if ($row['content'] != '') {
+                            echo $row['content'];
+                        } else {
+                            echo "目前，我国中医药界尚未出现类似于UpToDate的知识服务平台。循证知识服务平台在中医药领域中尚处于空白状态。
                         需要借鉴UpToDate等系统的成功经验，开发面向中医药领域的循证知识服务平台。
                         该项目针对乙型肝炎，总结出10个针对临床科研人员的专业临床问题、2个针对普通大众的普通问题以及1个针对医药机构的问题，
                         进行系统全面的证据检索和的收集，撰写并发布系统综述。为此，需要进行中医药循证医学证据知识服务平台的构建，实现综述知识的发布与管理，
-                        并实现综述与结构性知识的关联、综述内容检索、全文链接等功能。
+                        并实现综述与结构性知识的关联、综述内容检索、全文链接等功能。";
+                        }
+                        ?>
                     </p>
                     <div align="center"><div class="container_button">
-                        <a href="main.php"><font face="微软雅黑" color="white">进入系统</font></a>
-                    </div></div>
-                    
+                            <a href="main.php"><font face="微软雅黑" color="white">进入系统</font></a>
+                        </div></div>
+
                     <div class="clear"></div>
                 </div>
 

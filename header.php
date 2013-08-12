@@ -126,7 +126,7 @@ and open the template in the editor.
                             </ul>
                         </li>
                         <li><a href="about.php">帮助</a></li>
-                        <li><a href="article.php?id=7">关于我们</a></li>
+                        <li><a href="article.php?id=7">关于本站</a></li>
 
                     </ul>
                     <?php

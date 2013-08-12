@@ -1,5 +1,9 @@
 <?php
 include_once ("./header.php");
+include_once ("./functions.php");
+include_once ("./article_helper.php");
+
+
 require_once('appvars.php');
 require_once('connectvars.php');
 if (isset($_POST['keywords'])) {
@@ -27,7 +31,6 @@ if (isset($_GET['article_id'])) {
         <?php
         if (isset($keywords)) {
 
-            $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME) or die('Error connecting to MySQL server.');
 
             $query = "SELECT * FROM segment where title like '%$keywords%' or content like '%$keywords%' ";
 
@@ -39,7 +42,8 @@ if (isset($_GET['article_id'])) {
                 //$article_info = get_article_info($dbc, $article_id);
                 $segment_title = $row[title];
                 $segment_id = $row[id];
-                $segment_abstract = mb_substr($row[content], 0, 100, 'utf-8');
+
+                $segment_abstract = tcmks_substr($row[content]);
                 $segment_content = $row[content];
 
                 echo "<div class = \"accordion-group\">";
@@ -53,11 +57,15 @@ if (isset($_GET['article_id'])) {
                 echo "<div id = \"$segment_id\" class = \"accordion-body collapse\">";
                 echo "<div class = \"accordion-inner\">";
                 echo $segment_content;
-                echo "<a class = \"btn btn-success\" href=\"article.php?id=$article_id&insert=$segment_id&prev=$prev\"><i class=\"icon-plus icon-white\"></i>将本段插入综述</a>";
+                
+           
+              if (($_SESSION[id] == $row[user_id]) && (!is_segment_in_article($dbc, $article_id, $segment_id))) {
+                    echo "<a class = \"btn btn-success\" href=\"article.php?id=$article_id&insert=$segment_id&prev=$prev\"><i class=\"icon-plus icon-white\"></i>将本段插入综述</a>";
+               }
+                echo '&nbsp;';
+                echo "<a class = \"btn btn-success\" href=\"article.php?id=$article_id&copy=$segment_id&prev=$prev\"><i class=\"icon-plus icon-white\"></i>拷贝本段</a>";
                 echo "</div></div></div>";
             }
-
-            mysqli_close($dbc);
         }
         ?>
 

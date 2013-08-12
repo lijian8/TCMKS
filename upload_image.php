@@ -5,10 +5,7 @@ include_once ("./image_helper.php");
 <div class="row-fluid">
     <?php
     require_once('appvars.php');
-    require_once('connectvars.php');
-
-    
-
+   
     
 
     function renderImage($dbc, $id) {
@@ -32,7 +29,7 @@ include_once ("./image_helper.php");
     }
     if (isset($_POST['submit'])) {
 
-        $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+      
 
         $name = $_POST['name'];
         $subject = $_POST['subject'];

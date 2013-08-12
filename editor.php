@@ -1,5 +1,6 @@
 <?php
 include_once ("./header.php");
+include_once ("./article_helper.php");
 
 function getTags($dbc, $segment_id) {
     $query = "SELECT * FROM tags WHERE segment_id = '$segment_id'";
@@ -10,7 +11,7 @@ function getTags($dbc, $segment_id) {
         array_push($tags, $row[tag]);
     }
 
-    return implode(', ', $tags);
+    return implode(';', $tags);
 }
 
 function modifyTags($dbc, $segment_id, $tag_string) {
@@ -19,13 +20,15 @@ function modifyTags($dbc, $segment_id, $tag_string) {
     //echo $query;
     mysqli_query($dbc, $query) or die('Error querying database.');
 
-    $tag_string = str_replace(',', ' ', $tag_string);
-    $tag_string = str_replace('，', ' ', $tag_string);
-    $tag_string = str_replace('.', ' ', $tag_string);
-    $tag_string = str_replace('。', ' ', $tag_string);
-    $tag_string = str_replace('；', ' ', $tag_string);
+    /*
+      $tag_string = str_replace(',', ' ', $tag_string);
+      $tag_string = str_replace('，', ' ', $tag_string);
+      $tag_string = str_replace('.', ' ', $tag_string);
+      $tag_string = str_replace('。', ' ', $tag_string);
+      $tag_string = str_replace('；', ' ', $tag_string); */
+    $tag_string = str_replace('；', ';', $tag_string);
 
-    $tags = explode(' ', $tag_string);
+    $tags = explode(';', $tag_string);
     //$final_tags = array();
     if (count($tags) > 0) {
         foreach ($tags as $tag) {
@@ -40,45 +43,28 @@ function modifyTags($dbc, $segment_id, $tag_string) {
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    $article_id = $_GET['article_id'];
-    $query = "SELECT * FROM segment WHERE id = '$id'";
-    $result = mysqli_query($dbc, $query) or die('Error querying database.');
-    $row = mysqli_fetch_array($result);
-    $next = $row['next'];
+    $article_id = isset($_GET['article_id'])?$_GET['article_id']:'';
 
     if ($_GET['act'] == 'edit') {
+        $query = "SELECT * FROM segment WHERE id = '$id'";
+        $result = mysqli_query($dbc, $query) or die('Error querying database.');
+        $row = mysqli_fetch_array($result);
         $title = $row['title'];
         $content = $row['content'];
         $rank = $row['rank'];
+        $is_comment = $row['is_comment'];
         $tags = getTags($dbc, $id);
-    } else {
-        $query = "SELECT MAX(id) as id FROM `tcmks`.`segment`";
-        $result = mysqli_query($dbc, $query) or die('Error querying database1.');
-        $row = mysqli_fetch_array($result);
-        $nid = $row['id'] + 1;
-        $query = "INSERT INTO segment (id, article_id, prev, next) " .
-                "VALUES ('$nid','$article_id','$id', '$next')";
-        $result = mysqli_query($dbc, $query) or die('Error querying database2.');
-
-        $query1 = "SELECT segments FROM article WHERE id = '$article_id'";
-        $result1 = mysqli_query($dbc, $query1) or die('Error querying database.');
-        $row1 = mysqli_fetch_array($result1);
-
-        $new_segments = str_replace('|' . $id . '|', '|' . $id . '|' . $nid . '|', $row1['segments']);
-
-        $update = "update article set segments = '$new_segments' where id = '$article_id'";
-        mysqli_query($dbc, $update) or die('Error querying database.');
-
-        //$query = "UPDATE segment SET next = '$nid' WHERE id = '$id'";
-        //$result = mysqli_query($dbc, $query) or die('Error querying database2.');
-        $id = $nid;
+    } else if ($_GET['act'] == 'insert') {
+        $is_comment = isset($_GET['is_comment']) ? '1' : '0';
+        $rank = $is_comment ? '0' : '1';
+        $id = init_segment($dbc, $article_id, $id, $is_comment, $rank);
     }
 } else {
     $id = $_POST['id'];
     $title = $_POST['title'];
     $rank = $_POST['rank'];
     $content = $_POST['content'];
-    $article_id = $_POST['article_id'];
+    $article_id = isset($_POST['article_id']) ? $_POST['article_id']: '';
     $tags = $_POST['tags'];
     $query = "UPDATE segment SET rank = '$rank', title = '" . mysql_escape_string($title) . "', content = '" . mysql_escape_string($content) . "' WHERE id = '$id'";
 
@@ -110,7 +96,8 @@ mysqli_close($dbc);
 <div class="container">
 
     <form method="post" class="form-horizontal" action="editor.php">
-        <legend>编辑段落：</legend>
+        <legend>段落编辑器</legend>
+
         <div class="navbar">
             <div class="navbar-inner">
                 <div class="container">
@@ -121,29 +108,37 @@ mysqli_close($dbc);
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
+                    <a class="brand" href="#">编辑器</a>
 
                     <!-- Be sure to leave the brand out there if you want it shown -->
 
-                    <input class="btn btn-primary" type="submit" value="保存" name="submit" />
-                    <a class="btn btn-success" href="article.php?id=<?php echo $article_id; ?>">查看</a>
+                    <input class="btn btn-primary" type="submit" value="保存" name="submit" /> 
+                    <?php
+                    $link_for_view = ($article_id !='')? "article.php?id=$article_id#s$id" : "segment.php?id=$id";
+                    ?>
+                    <a class="btn btn-link" href="<?php echo $link_for_view; ?>"><i class="icon-search"></i>&nbsp;查看</a>
+                    <a class="btn btn-link" href="articles.php"><i class="icon-home"></i>返回</a>
+                                       
+                    <div class="btn-group" >
+                        <label  class="control-label" for="title">标题:</label>
+                        <input  type="text" id="title" class ="input-large" name="title" value ="<?php echo $title; ?>">
 
-                    <div class="btn-group">
-                        <label class="control-label" for="title">段落标题:</label>
-                        <div class="input-append" >
-                            <input  type="text" id="title" class ="input-large" name="title" value ="<?php echo $title; ?>">
-                            <select  name="rank">
-                                <option <?php if ($rank == 1) echo 'selected="selected"'; ?>  value="1">一级标题</option>
-                                <option <?php if ($rank == 2) echo 'selected="selected"'; ?> value="2">二级标题</option>
-                                <option <?php if ($rank == 3) echo 'selected="selected"'; ?> value="3">三级标题</option>
-                                <option <?php if ($rank == 4) echo 'selected="selected"'; ?> value="4">四级标题</option>
-                            </select>
-                        </div>
+                        <select  name="rank">
+                            <option <?php if ($rank == 1) echo 'selected="selected"'; ?>  value="1">一级标题</option>
+                            <option <?php if ($rank == 2) echo 'selected="selected"'; ?> value="2">二级标题</option>
+                            <option <?php if ($rank == 3) echo 'selected="selected"'; ?> value="3">三级标题</option>
+                            <option <?php if ($rank == 4) echo 'selected="selected"'; ?> value="4">四级标题</option>
+                            <option <?php if ($rank == 0) echo 'selected="selected"'; ?> value="0">正文</option>
+                        </select>
+                                  
+                        <input  type="text" id="tags" class ="input"  name="tags" value ="<?php echo $tags; ?>" placeholder ="添加标签">
+       
                     </div>
 
-                    <div class="btn-group">
-                        <label class="control-label" for="title">标签:</label>
-                        <input  type="text" id="tags" class ="input-large"  name="tags" value ="<?php echo $tags; ?>">
-                    </div>
+                  
+
+
+
                     <!-- Everything you want hidden at 940px or less, place within here -->
                     <div class="nav-collapse collapse">
                         <!-- .nav, .navbar-search, .navbar-form, etc -->
@@ -157,9 +152,9 @@ mysqli_close($dbc);
 
         <div class="control-group">
 
-            <?php
-            include_once ("./file_selector.php");
-            ?>
+<?php
+include_once ("./file_selector.php");
+?>
         </div>
 
         <input type="hidden" name="id" value ="<?php echo $id; ?>"></input><br/>

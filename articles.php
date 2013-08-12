@@ -21,7 +21,9 @@ if (isset($_GET['revoke'])) {
     revoke_article($dbc, $_GET['revoke']);
 }
 
-
+if (isset($_GET['delete_segment'])){
+delete_segment($dbc, $_GET['delete_segment']);
+}
 ?>
 <p></p>
 <!-- Subhead
@@ -64,7 +66,8 @@ if (isset($_GET['revoke'])) {
                     <li><a href="#tab2" data-toggle="tab">编辑中的综述</a></li>
                     <li><a href="#tab3" data-toggle="tab">审核中的综述</a></li>
                     <li><a href="#tab4" data-toggle="tab">综述发表</a></li>
-                    <li><a href="#tab5" data-toggle="tab">回收站</a></li>            
+                    <li><a href="#tab_segment" data-toggle="tab">综述段落管理</a></li>        
+                    <li><a href="#tab6" data-toggle="tab">回收站</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1">
@@ -95,7 +98,12 @@ if (isset($_GET['revoke'])) {
                         include ("./article_table.php");
                         ?>
                     </div>
-                    <div class="tab-pane" id="tab5">
+                    <div class="tab-pane" id="tab_segment">
+                        <?php
+                        include ("./segment_table.php");
+                        ?>
+                    </div>                    
+                    <div class="tab-pane" id="tab6">
                         <?php
                         $role = 'creator';
                         $recycle = true;

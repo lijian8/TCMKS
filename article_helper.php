@@ -3,6 +3,110 @@
 include_once ("./users_helper.php");
 include_once ("./functions.php");
 
+function render_tags($dbc, $c_id) {
+
+    $query = "SELECT * FROM tags WHERE segment_id = '$c_id'";
+    //echo $query;
+    $result = mysqli_query($dbc, $query) or die('Error querying database.');
+    $tags = array();
+    while ($row = mysqli_fetch_array($result)) {
+        $link = '<a href="javascript:invokePopupService(\'' . $row[tag] . '\');">' . $row[tag] . '</a>';
+
+        array_push($tags, $link);
+    }
+
+    if (count($tags) > 0) {
+        return implode(', ', $tags);
+    }
+}
+
+function render_segment_summary($dbc, $row) {
+    $segment_title = $row[title];
+    $segment_id = $row[id];
+
+    $segment_content = tcmks_substr($row[content]);
+    echo "<h4>";
+    $articles = get_articles_by_seg($dbc, $segment_id);
+
+    if (count($articles) != 0) {
+        echo render_articles_by_seg($dbc, $segment_id);
+        echo "&nbsp;/&nbsp;";
+        echo "<a href = \"article.php?id=" . $articles[0] . "#s$segment_id\">" . $segment_title . "</a>";
+    } else {
+        echo "<a href = \"segment.php?id=$segment_id\">" . $segment_title . "</a>";
+    }
+    echo "</h4>";
+    render_user_action($dbc, $row[user_id], '创建于', $row[create_time]);
+    echo "<p>" . $segment_content . "...</p>";
+}
+
+function get_max_segment_id($dbc) {
+    $query = "SELECT MAX(id) as id FROM `tcmks`.`segment`";
+    $result = mysqli_query($dbc, $query) or die('Error querying database1.');
+    $row = mysqli_fetch_array($result);
+    return $row['id'];
+}
+
+function copy_segment($dbc, $segment_id) {
+
+    $query = "SELECT * FROM segment WHERE  id = '$segment_id'";
+    $result = mysqli_query($dbc, $query) or die('Error querying database1.');
+    $row = mysqli_fetch_array($result);
+
+    $new_segment_id = get_max_segment_id($dbc) + 1;
+    $title = $row['title'];
+    $content = $row['content'];
+    $rank = $row['rank'];
+    $images = $row['images'];
+    $is_comment = $row['is_comment'];
+    $user_id = $_SESSION[id];
+    $query = "INSERT INTO segment (id, title, content, rank, images, is_comment, user_id) " .
+            "VALUES ('$new_segment_id','$title','$content','$rank','$images','$is_comment', '$user_id')";
+
+    $result = mysqli_query($dbc, $query) or die('Error querying database2.');
+    return $new_segment_id;
+}
+
+function init_segment($dbc, $article_id, $id, $is_comment, $rank) {
+
+    $nid = get_max_segment_id($dbc) + 1;
+
+    $user_id = $_SESSION[id];
+
+    $query = "INSERT INTO segment (id, is_comment, rank, user_id) " .
+            "VALUES ('$nid','$is_comment', '$rank','$user_id')";
+
+    $result = mysqli_query($dbc, $query) or die('Error querying database2.');
+    insert_segment_into_article($dbc, $article_id, $nid, $id);
+    return $nid;
+}
+
+function copy_and_insert_segment($dbc, $id, $segment_id, $prev) {
+    $new_segment_id = copy_segment($dbc, $segment_id);
+    insert_segment_into_article($dbc, $id, $new_segment_id, $prev);
+}
+
+function insert_segment_into_article($dbc, $id, $insert, $prev) {
+
+    $query1 = "SELECT segments FROM article WHERE id = '$id'";
+    $result1 = mysqli_query($dbc, $query1) or die('Error querying database.');
+    $row1 = mysqli_fetch_array($result1);
+
+    $new_segments = str_replace('|' . $prev . '|', '|' . $prev . '|' . $insert . '|', $row1['segments']);
+
+    $update = "update article set segments = '$new_segments' where id = '$id'";
+    mysqli_query($dbc, $update) or die('Error querying database.');
+}
+
+function render_articles_by_seg($dbc, $segment_id) {
+    $articles = get_articles_by_seg($dbc, $segment_id);
+    $article_links = array();
+    foreach ($articles as $article_id) {
+        array_push($article_links, get_article_link($dbc, $article_id));
+    }
+    return implode(',&nbsp;', $article_links);
+}
+
 function render_article_summary($dbc, $article_id, $word_count = 0) {
     $article_info = get_article_info($dbc, $article_id);
     echo "<h4><a href = \"article.php?id=$article_id\">" . $article_info[title] . "</a></h4>";
@@ -72,12 +176,19 @@ function get_abstract($dbc, $article_id) {
     return $row['content'];
 }
 
-function get_content($dbc, $article_id, $segment_id) {
+function get_content($dbc, $segment_id) {
 
-    $query = "SELECT content FROM segment where article_id=$article_id and id = $segment_id";
+    $query = "SELECT content FROM segment where id = $segment_id";
     $result = mysqli_query($dbc, $query) or die('Error querying database3.');
     $row = mysqli_fetch_array($result);
     return $row['content'];
+}
+
+function is_segment_in_article($dbc, $article_id, $segment_id) {
+    $query = "SELECT * FROM article WHERE id = '$article_id' and segments like '%|$segment_id|%'";
+
+    $result = mysqli_query($dbc, $query) or die('Error querying database1.');
+    return ($row = mysqli_fetch_array($result)) ? true : false;
 }
 
 function get_segments($dbc, $article_id) {
@@ -114,6 +225,10 @@ function get_article_info($dbc, $id) {
     if ($row = mysqli_fetch_array($result)) {
         $article_info[title] = $row[title];
         $article_info[create_time] = $row[create_time];
+        $article_info[deleted] = $row[deleted];
+        $article_info[publish_time] = $row[publish_time] == '' ? '尚未发布' : $row[publish_time];
+
+
         $article_info[creators] = render_authors($dbc, $id, 'creator');
         return $article_info;
     }
@@ -145,6 +260,11 @@ function revoke_article($dbc, $article_id) {
     mysqli_query($dbc, $query) or die('Error querying database:');
 }
 
+function delete_segment($dbc, $id) {
+    $query = "DELETE FROM segment WHERE id = '$id'";
+    mysqli_query($dbc, $query);
+}
+
 function delete_article($dbc, $article_id) {
     $query = "DELETE FROM article WHERE id = '$article_id'";
     mysqli_query($dbc, $query);
@@ -164,6 +284,11 @@ function list_articles($dbc, $user_id) {
     while ($row = mysqli_fetch_array($result)) {
         render_article_summary($dbc, $row[id], $word_count = 0);
     }
+}
+
+function is_segment_used($dbc, $segment_id) {
+    $articles = get_articles_by_seg($dbc, $segment_id);
+    return (count($articles) != 0);
 }
 
 ?>

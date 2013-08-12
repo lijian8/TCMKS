@@ -10,7 +10,7 @@ function get_all_segments($dbc) {
     return $segments;
 }
 
-function get_file_by_id($dbc, $image_id) {
+function get_image_file_by_id($dbc, $image_id) {
     $query = "SELECT file FROM images WHERE id = '$image_id'";
     $result = mysqli_query($dbc, $query) or die('Error querying database.');
     if ($row = mysqli_fetch_array($result)) {
@@ -19,7 +19,7 @@ function get_file_by_id($dbc, $image_id) {
 }
 
 function delete_image($dbc, $image_id) {
-    $file = IMG_UPLOADPATH . get_file_by_id($dbc, $image_id);
+    $file = IMG_UPLOADPATH . get_image_file_by_id($dbc, $image_id);
 
     unlink($file);
     $query = "DELETE FROM images WHERE id = '$image_id'";

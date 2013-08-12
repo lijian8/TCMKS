@@ -8,21 +8,20 @@ $managing_subject = 'image';
 function render_image($row) {
     echo '<li class="span3">';
     echo '<div class = "thumbnail">';
+    echo '<div align = "right"><a href="' . $_SERVER['PHP_SELF'] . '?deleted_image_id=' . $row['id'] . '"><i class="icon-remove-sign"></i></a></div>';
     echo '<img src="' . IMG_UPLOADPATH . $row['file'] . '"  alt="" /></p>';
     echo '<div class = "caption">';
-    echo '<p><strong>' . $row['name'] . '.&nbsp;</strong>';
+    echo '<p><strong><a href="javascript:popUpload(\'' . $row['id'] . '\');">'. $row['name']. '</a>&nbsp;</strong>';
     echo $row['description'] . '</p>';
-    echo '<a href="javascript:popUpload(\'' . $row['id'] . '\');"><i class="icon-edit"></i></a>';
     echo '&nbsp;&nbsp';
     /*
       echo '<a href="#"><i class="icon-plus"></i></a>';
       echo '&nbsp;&nbsp'; */
-    echo '<a href="' . $_SERVER['PHP_SELF'] . '?deleted_image_id=' . $row['id'] . '"><i class="icon-trash"></i></a>';
+    //echo '<a href="' . $_SERVER['PHP_SELF'] . '?deleted_image_id=' . $row['id'] . '"><i class="icon-trash"></i></a>';
     echo '&nbsp;&nbsp';
 
     echo '</div></div></li>';
 }
-
 
 if (isset($_GET['deleted_image_id'])) {
     delete_image($dbc, $_GET['deleted_image_id']);
@@ -83,7 +82,7 @@ if (isset($_POST['submit'])) {
 <div class="container">
     <div class="row-fluid">
         <div class="span2">
-<?php include_once ("manager_sidebar.php"); ?>
+            <?php include_once ("manager_sidebar.php"); ?>
         </div><!--/span-->
         <div class="span10">
 
@@ -129,7 +128,8 @@ if (isset($_POST['submit'])) {
 
             <div class="row-fluid">
                 <?php
-                $query = "SELECT * FROM `tcmks`.`images`";
+                $user_id = $_SESSION[id];
+                $query = "SELECT * FROM `tcmks`.`images` WHERE user_id = $user_id";
 
                 $result = mysqli_query($dbc, $query) or die('Error querying database.');
                 while ($row = mysqli_fetch_array($result)) {
@@ -153,7 +153,7 @@ if (isset($_POST['submit'])) {
 <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <H3 id="myModalLabel"  >请上传图片：</H3>
+        <H3 id="myModalLabel"  >图片信息录入：</H3>
     </div>
     <div id ="myContent" class="modal-body">          
     </div>

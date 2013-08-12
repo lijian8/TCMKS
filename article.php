@@ -1,9 +1,12 @@
 <?php
+require_once('appvars.php');
 include_once ("./header.php");
 include_once ("./pop_up.php");
 include_once ("./image_helper.php");
 include_once ("./article_helper.php");
-require_once('appvars.php');
+include_once ("./messages.php");
+include_once ("./resource_helper.php");
+
 
 function render_images($dbc, $id, $segment_id, $all_images) {
 
@@ -52,23 +55,8 @@ function get_images_of_segment($dbc, $segment_id) {
     return $images;
 }
 
-function renderTags($dbc, $c_id) {
-    $query = "SELECT * FROM tags WHERE segment_id = '$c_id'";
-    //echo $query;
-    $result = mysqli_query($dbc, $query) or die('Error querying database.');
-    $tags = array();
-    while ($row = mysqli_fetch_array($result)) {
-        $link = '<a href="javascript:invokePopupService(\'' . $row[tag] . '\');">' . $row[tag] . '</a>';
 
-        array_push($tags, $link);
-    }
-
-    if (count($tags) > 0) {
-        echo '标签：' . implode(', ', $tags);
-    }
-}
-
-function delete_segment($dbc, $id, $segment_id) {
+function delete_segment_from_article($dbc, $id, $segment_id) {
 
     $query = "SELECT segments FROM article WHERE id = '$id'";
     $result = mysqli_query($dbc, $query) or die('Error querying database.');
@@ -100,19 +88,7 @@ function set_image_no($dbc, $segments) {
     return $images_nos;
 }
 
-function insert_segment($dbc, $id, $insert, $prev) {
 
-    $query1 = "SELECT segments FROM article WHERE id = '$id'";
-    $result1 = mysqli_query($dbc, $query1) or die('Error querying database.');
-    $row1 = mysqli_fetch_array($result1);
-
-    $new_segments = str_replace('|' . $prev . '|', '|' . $prev . '|' . $insert . '|', $row1['segments']);
-
-    $update = "update article set segments = '$new_segments' where id = '$id'";
-    mysqli_query($dbc, $update) or die('Error querying database.');
-}
-
-//include_once ("./number_sign_processing.php");
 $biblio = array();
 
 if (isset($_GET['id'])) {
@@ -125,14 +101,16 @@ if (isset($_GET['id'])) {
     }
 
     if (isset($_GET['deleted_segment_id'])) {
-        delete_segment($dbc, $id, $_GET['deleted_segment_id']);
+        delete_segment_from_article($dbc, $id, $_GET['deleted_segment_id']);
     }
 
     if (isset($_GET['insert'])) {
-        insert_segment($dbc, $id, $_GET['insert'], $_GET['prev']);
+        insert_segment_into_article($dbc, $id, $_GET['insert'], $_GET['prev']);
     }
 
-
+    if (isset($_GET['copy'])) {
+        copy_and_insert_segment($dbc, $id, $_GET['copy'], $_GET['prev']);
+    }
 
     $article_info = get_article_info($dbc, $id);
     $segments = get_segments($dbc, $id);
@@ -167,26 +145,28 @@ if (isset($_GET['id'])) {
             //echo $c_title;
             $c_rank = $row2['rank'];
 
-            if ($c_rank == 1) {
-                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
-                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
+            if (($has_right_to_edit) || (!$row2['is_comment'])) {
+                if ($c_rank == 1) {
+                    //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
+                    echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">' . $c_title . '</font></a></li>';
 
-                //'<h2>' . $c_title . '</h2>';
-            } else if ($c_rank == 2) {
-                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
-                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
+                    //'<h2>' . $c_title . '</h2>';
+                } else if ($c_rank == 2) {
+                    //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
+                    echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
 
-                //echo '<h3>' . $c_title . '</h3>';
-            } else if ($c_rank == 3) {
-                //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
-                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
+                    //echo '<h3>' . $c_title . '</h3>';
+                } else if ($c_rank == 3) {
+                    //echo '<li><a href="#s' . $i . '"><i class="icon-chevron-right"></i><font face="微软雅黑">-' . $c_title . '</font></a></li>';
+                    echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
 
-                //echo '<h3>' . $c_title . '</h3>';
-            } else {
-                echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
+                    //echo '<h3>' . $c_title . '</h3>';
+                } else if ($c_rank == 4) {
+                    echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;&nbsp;&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
+                } else {
+                    echo '<li><a href="#s' . $c_id . '"><i class="icon-chevron-right"></i><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;' . $c_title . '</font></a></li>';
+                }
             }
-            //$i++;
-            //$segment_id = $row2['next'];
         }
     }
 
@@ -197,6 +177,10 @@ if (isset($_GET['id'])) {
 
             <div class="span9">
                 <div class="well">
+                    <?php 
+                    if ($article_info[deleted]) render_warning("本文已被放入回收站！");
+                    
+                    ?>
                     <h1><font face="微软雅黑" ><?php echo $article_info[title]; ?> </font></h1>
                     <font size ="2">
                     <p></p>
@@ -205,10 +189,10 @@ if (isset($_GET['id'])) {
                         <strong>作者:&nbsp;</strong>
     <?php echo render_authors($dbc, $id, 'author', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;     
                         <strong>评审:&nbsp;</strong>
-    <?php echo render_authors($dbc, $id, 'reviewer', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;     
+                        <?php echo render_authors($dbc, $id, 'reviewer', ',&nbsp;&nbsp;'); ?>;&nbsp;&nbsp;     
                         <strong>发布者:&nbsp;</strong>
                         <?php echo render_authors($dbc, $id, 'publisher', ',&nbsp;&nbsp;'); ?>.     
-                    <p>&nbsp;&nbsp;<strong>创建时间：</strong><?php echo $article_info[create_time]; ?> ;&nbsp;&nbsp; <strong>发布时间：</strong>06/07/2013</font></p>            
+                    <p>&nbsp;&nbsp;<strong>创建时间：</strong><?php echo $article_info[create_time]; ?> ;&nbsp;&nbsp; <strong>发布时间：</strong><?php echo $article_info[publish_time]; ?></font></p>            
 
                     </font>
                     <p>
@@ -216,13 +200,14 @@ if (isset($_GET['id'])) {
                         if ($has_right_to_edit) {
                             echo '<a class="btn btn-primary" href="article_metadata.php?id=' . $id . '"><i class="icon-th-list icon-white"></i>&nbsp;编辑元信息</a>';
                             ?>        
-                            <a class="btn btn-primary" href="#"><i class="icon-edit icon-white"></i>&nbsp;编辑全文</a>
-                            <a class="btn btn-primary" href="#"><i class="icon-trash icon-white"></i>&nbsp;删除本文</a> 
+                            <a class="btn btn-primary" data-toggle="tooltip" title="first tooltip" href="#"><i class="icon-edit icon-white"></i>&nbsp;编辑全文</a>
+                            
                             <?php
+                            echo '<a class="btn btn-primary" href="articles.php?recycle='.$id.'"><i class="icon-trash icon-white"></i>&nbsp;'.($article_info[deleted] ? '恢复': '删除').'本文</a>';
                         }
                         ?>
                         <a class="btn btn-warning" href="#"><i class="icon-download-alt icon-white"></i>&nbsp;下载全文</a>            
-                        <a class="btn btn-warning" href="#"><i class="icon-home icon-white"></i>&nbsp;返回主页</a>            
+                        <a class="btn btn-warning" href="articles.php"><i class="icon-home icon-white"></i>&nbsp;返回主页</a>            
                     </p>
                 </div>
 
@@ -231,13 +216,11 @@ if (isset($_GET['id'])) {
 
     <?php
     $is_first_segment = true;
-    $j = 0;
+
     //while ($segment_id != 0) {
     foreach ($segments as $segment_id) {
         if ('' != $segment_id) {
-            //echo '<section id="s' . $j . '">';
-            echo '<section id="s' . $segment_id . '">';
-            $j++;
+
             $q2 = "SELECT * FROM segment WHERE id = '$segment_id'";
             $r2 = mysqli_query($dbc, $q2) or die('Error querying database2.');
             $row2 = mysqli_fetch_array($r2);
@@ -246,13 +229,24 @@ if (isset($_GET['id'])) {
             $c_title = $row2['title'];
             $c_content = $row2['content'];
             $c_rank = $row2['rank'];
+            $c_creator = $row2['user_id'];
+            $c_create_time = $row2['create_time'];
 
-            $c_rank_no = $c_rank + 2;
-            echo '<h'.$c_rank_no.'><font face="微软雅黑">' . $c_title . '</font></h'.$c_rank_no.'>';
-          
+            if ((!$has_right_to_edit) && ($row2['is_comment'])) {
+                continue;
+            }
+            echo '<section id="s' . $segment_id . '">';
+            $is_comment = $row2['is_comment'] ? '批注：' : '';
 
+            if ($c_rank == 0) {
+                echo '<p><strong><font face="微软雅黑">' . $is_comment . $c_title . '</font></strong></p>';
+            } else {
+                $c_rank_no = $c_rank + 2;
+                echo '<h' . $c_rank_no . '><font face="微软雅黑">' . $is_comment . $c_title . '</font></h' . $c_rank_no . '>';
+            }
 
-            renderTags($dbc, $c_id);
+            render_user_action($dbc, $c_creator, '创建于', $c_create_time);
+            echo ($tags_string = render_tags($dbc, $c_id)) ? '<p>标签：' . $tags_string . '</p>' : '';
             //echo '<p>' . $c_content . '</p>';
             //$c_content_processed = process_number_sign($c_content);
             //echo '<p>' . $c_content_processed["content"] . '</p>';
@@ -300,6 +294,8 @@ if (isset($_GET['id'])) {
 
                 echo "<li class=\"active\"><a href=\"editor.php?act=edit&article_id=$id&id=$c_id\"><i data-toggle=\"tooltip\" title=\"编辑本段\" class=\"icon-edit\"></i>&nbsp;&nbsp;编辑本段</a></li>";
 
+                echo "<li class=\"active\"><a href=\"editor.php?is_comment&act=insert&article_id=$id&id=$c_id\"><i data-toggle=\"tooltip\" title=\"编辑本段\" class=\"icon-comment\"></i>&nbsp;&nbsp;插入批注</a></li>";
+
                 if ($is_first_segment) {
                     $is_first_segment = false;
                 } else {
@@ -312,8 +308,7 @@ if (isset($_GET['id'])) {
                 echo "<ul id=\"menu1\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"drop4\">";
                 echo "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"editor.php?act=insert&article_id=$id&id=$c_id\">创建新的段落</a></li>";
                 echo "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"segment_selector.php?article_id=$id&prev=$c_id\">插入已有段落</a></li>";
-                echo "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\">拷贝已有段落</a></li>";
-
+               
                 echo "</ul></li>";
 //echo '<a href="editor.php?act=edit&article_id=' . $id . '&id=' . $c_id . '"><i data-toggle="tooltip" title="编辑本段" class="icon-edit"></i></a>';
                 echo "<li class=\"dropdown\">";
@@ -339,7 +334,7 @@ if (isset($_GET['id'])) {
 
 
 
-            echo '<HR color=#987cb9 size=1>';
+
 
             //$segment_id = $row2['next'];
             echo '</section>';
@@ -349,6 +344,8 @@ if (isset($_GET['id'])) {
     if (count($biblio) != 0) {
         echo '<section id="biblio">';
         echo '<div class="page-header"><h2><font face="微软雅黑">参考文献</font></h2></div>';
+        render_resource_list($dbc, $biblio);
+        /*
         echo '<ol>';
         foreach ($biblio as $ref) {
             $q3 = "SELECT * FROM resource WHERE id = '$ref'";
@@ -372,6 +369,9 @@ if (isset($_GET['id'])) {
             }
         }
         echo '</ol>';
+         * 
+         */
+        
         echo '</section>';
     }
 }
