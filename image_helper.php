@@ -10,6 +10,12 @@ function get_all_segments($dbc) {
     return $segments;
 }
 
+
+function get_image_file_by_name($dbc, $name) {
+    $image_id = get_image_id($dbc,$name);
+    return get_image_file_by_id($dbc, $image_id);
+}
+
 function get_image_file_by_id($dbc, $image_id) {
     $query = "SELECT file FROM images WHERE id = '$image_id'";
     $result = mysqli_query($dbc, $query) or die('Error querying database.');
@@ -57,6 +63,18 @@ function insert_into_segment($dbc, $segment_id, $image_id) {
 
     $update = "update segment set images = '$images' where id = '$segment_id'";
     mysqli_query($dbc, $update) or die('Error querying database.');
+}
+
+function get_image_id($dbc, $name) {
+   
+    if (!isset($name) || ($name == '')) return 0;
+    $query = "SELECT * FROM `tcmks`.`images` WHERE name = '$name'";
+    $result = mysqli_query($dbc, $query) or die('Error querying database4.');
+    if ($row = mysqli_fetch_array($result)){
+        return $row[id];
+    }else{
+        return 0;
+    }
 }
 
 function get_image_name($dbc, $image_id) {
