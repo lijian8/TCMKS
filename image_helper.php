@@ -120,7 +120,8 @@ function upload_image($dbc, $name, $subject, $discription) {
                 if (move_uploaded_file($_FILES['screenshot']['tmp_name'], $target)) {
                     // Connect to the database
                     // Write the data to the database
-                    $query = "INSERT INTO images VALUES ('$image_id', '".mysql_escape_string($name)."', '$new_file_name', '".mysql_escape_string($subject)."', NOW(), '".mysql_escape_string($discription)."', '1', '$user_id')";
+                    $query = "INSERT INTO images VALUES ('$image_id', '".mysql_escape_string($name)."', '$new_file_name', '".mysql_escape_string($subject)."', NOW(), '".mysql_escape_string($discription)."', '$user_id')";
+                    
                     mysqli_query($dbc, $query);
 
                     $name = "";
