@@ -57,10 +57,10 @@ function render_resource_as_item($row) {
     echo $row['creator'] . '.' . $link . '.' . $row['source'] . '.' . $row['publisher'];
     $file_name = iconv('utf-8', 'gb2312', $row['file']);
 
-    echo '<a class = "btn btn-success" href="javascript:invokePopupService(\'' . $row['id'] . '\',\'resource\');"><i class="icon-search icon-white"></i>&nbsp;查看</a>';
+    echo '<a class = "btn  btn-small btn-success" href="javascript:invokePopupService(\'' . $row['id'] . '\',\'resource\');"><i class="icon-search icon-white"></i>&nbsp;查看</a>';
     echo '&nbsp;';
     if (is_file(GW_UPLOADPATH . $file_name)) {
-        echo '<a class = "btn btn-warning" href="' . GW_UPLOADPATH . $row['file'] . '"><i class="icon-download-alt icon-white"></i>&nbsp;下载原文</a>';
+        echo '<a class = "btn  btn-small btn-warning" href="' . GW_UPLOADPATH . $row['file'] . '"><i class="icon-download-alt icon-white"></i>&nbsp;下载</a>';
     }
 }
 
