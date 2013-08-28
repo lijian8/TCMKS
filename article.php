@@ -8,7 +8,7 @@ include_once ("./messages.php");
 include_once ("./resource_helper.php");
 
 
-function render_images($dbc, $id, $segment_id, $all_images) {
+function render_images($dbc, $id, $segment_id, $all_images, $has_right_to_edit) {
 
     $images = get_images_of_segment($dbc, $segment_id);
     //print_r($images);
@@ -20,11 +20,15 @@ function render_images($dbc, $id, $segment_id, $all_images) {
             $image_file = $row['file'];
             echo '<div class="row-fluid">';
             echo '<ul class="thumbnails">';
+            echo '<li class="span3"></li>';
             echo '<li class="span6">';
 
             echo '<div class="thumbnail">';
-            echo "<div align = \"right\"><a href=\"?id=$id&segment_id=$segment_id&delete_image=$image_id&delete_image_file=$image_file \" ><i class=\"icon-remove-sign\"></i></a></div>";
-            echo '<a href="javascript:invokePopupService(\'' . $image_id . '\',\'image\');">' ;                  
+            if ($has_right_to_edit){
+                 echo "<div align = \"right\"><a href=\"?id=$id&segment_id=$segment_id&delete_image=$image_id&delete_image_file=$image_file \" ><i class=\"icon-remove-sign\"></i></a></div>";
+            }
+             //echo '<a href="javascript:invokePopupService(\'' . $image_id . '\',\'image\');">' ;    
+            echo '<a target="_blank" href="image.php?id=' . $image_id . '">' ;     
             echo '<img src="' . IMG_UPLOADPATH . $image_file . '"  alt="" />';
             echo '</a>';
             echo '<div class="caption">';
@@ -287,7 +291,7 @@ if (isset($_GET['id'])) {
 
             echo '<p>' . $c_content . '</p>';
 
-            render_images($dbc, $id, $segment_id, $images);
+            render_images($dbc, $id, $segment_id, $images, $has_right_to_edit);
 
             if ($has_right_to_edit) {
 
