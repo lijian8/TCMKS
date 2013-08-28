@@ -4,6 +4,7 @@ include_once ("./header.php");
 include_once ("./messages.php");
 include_once ("./image_helper.php");
 include_once ("./entity_helper.php");
+include_once ("./functions.php");
 
 if  (isset($_GET['delete_triple_id'])) {
     delete_triple($dbc, $_GET['delete_triple_id']); 
