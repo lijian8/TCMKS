@@ -43,6 +43,7 @@ while ($row = mysqli_fetch_array($result)) {
     if ($first) {
         echo '<h3>该图表出现于如下的文献中：</h3>';
         echo '<hr>';
+        $first = false;
     }
     render_segment_summary($dbc, $row);
 }
