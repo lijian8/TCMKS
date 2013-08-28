@@ -31,9 +31,9 @@ function render_segment_summary($dbc, $row) {
     if (count($articles) != 0) {
         echo render_articles_by_seg($dbc, $segment_id);
         echo "&nbsp;/&nbsp;";
-        echo "<a href = \"article.php?id=" . $articles[0] . "#s$segment_id\">" . $segment_title . "</a>";
+        echo "<a target=\"_blank\" href = \"article.php?view&id=" . $articles[0] . "#s$segment_id\">" . $segment_title . "</a>";
     } else {
-        echo "<a href = \"segment.php?id=$segment_id\">" . $segment_title . "</a>";
+        echo "<a target=\"_blank\" href = \"segment.php?id=$segment_id\">" . $segment_title . "</a>";
     }
     echo "</h4>";
     render_user_action($dbc, $row[user_id], '创建于', $row[create_time]);
@@ -208,7 +208,7 @@ function get_segments($dbc, $article_id) {
 
 function get_article_link($dbc, $id) {
     $title = get_article_title($dbc, $id);
-    return "<a href = \"article.php?id=$id\">$title</a>";
+    return "<a  target=\"_blank\" href = \"article.php?view&id=$id\">$title</a>";
 }
 
 function get_article_title($dbc, $id) {

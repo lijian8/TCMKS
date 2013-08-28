@@ -145,7 +145,9 @@ if (isset($_GET['keywords'])) {
                                     break;
                                 echo '<li class="span2">';
                                 echo '<div class = "thumbnail">';
-                                echo '<img src="' . IMG_UPLOADPATH . $row['file'] . '"  alt="" /></p>';
+                                echo '<a target="_blank" href="image.php?id=' . $row['id'] . '">' ;                  
+                                echo '<img src="' . IMG_UPLOADPATH . $row['file'] . '"  alt="" />';
+                                echo '</a>';
                                 echo '<div class = "caption">';
                                 echo '<p><strong>' . $row['name'] . '.&nbsp;</strong></p>';
                                 // echo $row['description'] . '</p>';

@@ -20,12 +20,13 @@ function render_images($dbc, $id, $segment_id, $all_images) {
             $image_file = $row['file'];
             echo '<div class="row-fluid">';
             echo '<ul class="thumbnails">';
-            echo '<li class="span12">';
+            echo '<li class="span6">';
 
             echo '<div class="thumbnail">';
             echo "<div align = \"right\"><a href=\"?id=$id&segment_id=$segment_id&delete_image=$image_id&delete_image_file=$image_file \" ><i class=\"icon-remove-sign\"></i></a></div>";
-
+            echo '<a href="javascript:invokePopupService(\'' . $image_id . '\',\'image\');">' ;                  
             echo '<img src="' . IMG_UPLOADPATH . $image_file . '"  alt="" />';
+            echo '</a>';
             echo '<div class="caption">';
             echo '<h4>' . FIGURE . $all_images[$row['id']] . '.' . $row['name'] . '</h4>';
             echo '<p>' . $row[description];
@@ -94,8 +95,8 @@ $biblio = array();
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    $has_right_to_edit = has_right_to_edit($dbc, $_SESSION['id'], $id);
-
+    $has_right_to_edit = isset($_GET['view'])? false : has_right_to_edit($dbc, $_SESSION['id'], $id); 
+    
     if (isset($_GET['delete_image'])) {
         delete_image_from_segment($dbc, $_GET['segment_id'], $_GET['delete_image']);
     }
