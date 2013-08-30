@@ -88,7 +88,6 @@ if (isset($_GET['deleted_file'])) {
                     </tr>
 
                     <?php
-                    
                     $user_id = $_SESSION[id];
                     $query = "SELECT * FROM resource where user_id ='$user_id' ORDER BY title ASC";
                     $data = mysqli_query($dbc, $query);
@@ -107,20 +106,22 @@ if (isset($_GET['deleted_file'])) {
 
                         echo '<td width = "32%">';
                         echo '<a class="btn-link" href="upload_file.php?action=update&file_id=' . $row[id] . '">' . $row['title'] . '</a>';
-                        
-                        if (($row['file'] != '')&&(is_file(GW_UPLOADPATH . $row['file']))) {
-                            echo '<a class="btn-link" href="' . GW_UPLOADPATH . $row['file'] . '"><i class="icon-download-alt"></i></a>';
+
+                        if ($row['file'] != '') {
+                            $file_name = iconv('utf-8', 'gb2312', $row['file']);
+                            if (is_file(GW_UPLOADPATH . $file_name))
+                                echo '<a class="btn-link" href="' . GW_UPLOADPATH . $row['file'] . '"><i class="icon-download-alt"></i></a>';
                         }
                         echo '</td>';
-                        
+
                         echo '<td width = "5%">' . $row['type'] . '</td>';
 
                         echo '<td width = "20%">' . $row['source'] . '</td>';
                         echo '<td width = "10%">' . $row['subject'] . '</td>';
 
                         echo '<td width = "10%">' . $row['create_time'] . '</td>';
-                        $file_name = iconv('utf-8', 'gb2312', $row['file']);
-                        echo '<td width = "5%">';    
+                        //$file_name = iconv('utf-8', 'gb2312', $row['file']);
+                        echo '<td width = "5%">';
                         $link_for_delete = $_SERVER['PHP_SELF'] . '?deleted_file=' . $row['id'];
                         echo '<a class="btn-link" href="' . $link_for_delete . '"><i class="icon-trash"></i></a></td></tr>';
                     }

@@ -181,12 +181,13 @@ if (isset($_GET['id'])) {
             </div>
 
             <div class="span9">
-                <div class="well">
+                
                     <?php 
                     if ($article_info[deleted]) render_warning("本文已被放入回收站！");
                     
                     ?>
-                    <h1><font face="微软雅黑" ><?php echo $article_info[title]; ?> </font></h1>
+                <div class="well">
+                    <h2><font face="微软雅黑" ><?php echo $article_info[title]; ?> </font></h2>
                     <font size ="2">
                     <p></p>
                     <p>&nbsp;&nbsp;<strong>创建者:&nbsp;</strong>
@@ -214,7 +215,7 @@ if (isset($_GET['id'])) {
                         <a class="btn btn-warning" href="#"><i class="icon-download-alt icon-white"></i>&nbsp;下载全文</a>            
                         <a class="btn btn-warning" href="articles.php"><i class="icon-home icon-white"></i>&nbsp;返回主页</a>            
                     </p>
-                </div>
+              </div>
 
 
 

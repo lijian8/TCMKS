@@ -26,13 +26,14 @@ function render_segment_summary($dbc, $row) {
 
     $segment_content = tcmks_substr($row[content]);
     echo "<h4>";
-    $articles = get_articles_by_seg($dbc, $segment_id);
+    $articles = get_articles_by_seg($dbc, $segment_id, false);
 
     if (count($articles) != 0) {
-        echo render_articles_by_seg($dbc, $segment_id);
+        echo render_articles_by_seg($dbc, $segment_id, false);
         echo "&nbsp;/&nbsp;";
         echo "<a target=\"_blank\" href = \"article.php?view&id=" . $articles[0] . "#s$segment_id\">" . $segment_title . "</a>";
     } else {
+        
         echo "<a target=\"_blank\" href = \"segment.php?id=$segment_id\">" . $segment_title . "</a>";
     }
     echo "</h4>";
@@ -98,8 +99,8 @@ function insert_segment_into_article($dbc, $id, $insert, $prev) {
     mysqli_query($dbc, $update) or die('Error querying database.');
 }
 
-function render_articles_by_seg($dbc, $segment_id) {
-    $articles = get_articles_by_seg($dbc, $segment_id);
+function render_articles_by_seg($dbc, $segment_id, $get_recycle = true) {
+    $articles = get_articles_by_seg($dbc, $segment_id,  $get_recycle);
     $article_links = array();
     foreach ($articles as $article_id) {
         array_push($article_links, get_article_link($dbc, $article_id));
@@ -234,8 +235,10 @@ function get_article_info($dbc, $id) {
     }
 }
 
-function get_articles_by_seg($dbc, $segment_id) {
+function get_articles_by_seg($dbc, $segment_id, $get_recycle = true) {
     $query = "SELECT id FROM article where segments like '%|$segment_id|%'";
+    if (!$get_recycle) $query .= " and deleted='0'";
+    
     $result = mysqli_query($dbc, $query) or die('Error querying database.');
     $articles = array();
     while ($row = mysqli_fetch_array($result)) {
