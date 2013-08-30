@@ -267,15 +267,20 @@ if (isset($_GET['id'])) {
                     $word = substr($word, strlen(BIBLIO));
                     //echo "is biblio;";
                     if (in_array($word, $biblio)) {
-                        $key = array_search($word, $biblio);
+                        $key = array_search($word, $biblio)+1;
+                        //print_r($biblio);
+                        //echo $word." is array search as：" . $key ."; ";
                     } else {
                         $key = array_push($biblio, $word);
+                        //print_r($biblio); 
+                        //echo $word." is array push as：" . $key ."; ";
                     }
-
+                   
                     //$link = '<a href="javascript:invokePopupService(\'' . $word . '\',\'resource\');">[' . $key . ']</a>';
                     //$link = "<a href=\"#$word\">[$key]</a>";
 
                     $link = "<a href=\"javascript:jump('$word');\">[$key]</a>";
+                    
                     $c_content = str_replace("#" . BIBLIO . "$word#", $link, "$c_content");
                 } else if (!strncmp($word, FIGURE, strlen(FIGURE))) {
                     $word = substr($word, strlen(FIGURE));
