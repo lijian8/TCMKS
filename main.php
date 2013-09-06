@@ -31,7 +31,7 @@ require_once('appvars.php');
             </div>
         </div>
         <div align ="right">
-            <a href='search.php'>>>查看更多</a>
+            <a href='search.php?keywords=乙型病毒性肝炎'>>>查看更多</a>
         </div>    
     </div>
     <hr>
