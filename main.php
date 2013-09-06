@@ -1,28 +1,38 @@
 <?php
 include_once ("./header.php");
 include_once ("./article_helper.php");
+include_once ("./functions.php");
+include_once ("./entity_helper.php");
+include_once ("./image_helper.php");
+include_once ("./messages.php");
+require_once('appvars.php');
 ?>
 <div class="container">
 
     <img width ="100%" src ="img/banner.jpg"></img>                    
     <p></p>
     <div class="row-fluid marketing">
-       
-            <div class="media">
-                <a class="pull-left" href="experts.php">
-                    <img class="media-object" src="img/ResearchNews.jpg" data-src="holder.js/64x64">
-                </a>
-                <div class="media-body" align ="left">
-                    <h4 class="media-heading"><a href="experts.php">热点动态</a></h4>
-                    <?php
-                    echo get_content($dbc, 77);
-                    ?>
-                    
-                </div>
+
+        <div class="media">
+
+            <div class="media-body" align ="left">
+                <h4 class="media-heading">最新动态>></h4>
+                <hr>
+                <?php
+                //echo get_content($dbc, 77);
+
+                $query = "SELECT * FROM segment ORDER BY create_time DESC LIMIT 0,5";
+                $result = mysqli_query($dbc, $query) or die('Error querying database.');
+                while ($row = mysqli_fetch_array($result)) {
+                    render_segment_summary($dbc, $row);
+                }
+                ?>
+
             </div>
-             <div align ="right">
-                 <a href='article.php?id=13'>>>查看更多</a>
-             </div>    
+        </div>
+        <div align ="right">
+            <a href='search.php'>>>查看更多</a>
+        </div>    
     </div>
     <hr>
     <div class="row-fluid marketing">
@@ -71,7 +81,7 @@ include_once ("./article_helper.php");
             </div>
         </div>
     </div>
-   
+
 </div>
 <?php
 include_once ("./foot.php");
