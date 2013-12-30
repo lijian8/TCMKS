@@ -10,7 +10,7 @@ $db_user		= 'tcmks';
 $db_pass		= 'tcmks';
 $db_database	= 'tcmks'; 
 
-/* End config */
+/* End of config */
 
 
 
